@@ -7,14 +7,34 @@ namespace MediConnect.Controllers;
 public class MainController : ControllerBase
 {
 
-    [HttpGet("getHealthData")]
-    public HealthDTO GetHealthData()
+    [HttpGet("getPersonData")]
+    public PersonDTO GetHealthData()
     {
-        return new HealthDTO
+        return new PersonDTO
         {
-            Status = "OK",
-            Health = 100,
-            Unhealthy = false
+            Name = "James",
+            Surname = "Bond",
+            Health = new List<HealthDTO>
+            {
+                new()
+                {
+                    Health = 100,
+                    Status = "ok",
+                    Unhealthy = false
+                },
+                new()
+                {
+                    Health = 60,
+                    Status = "Kinda ok",
+                    Unhealthy = false
+                },
+                new()
+                {
+                    Health = 12,
+                    Status = "Nearly dead",
+                    Unhealthy = true
+                }
+            }
         };
     }
 }
