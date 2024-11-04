@@ -12,7 +12,7 @@ public class MainController : ControllerBase
     {
         return new PersonDTO
         {
-            Name = "James",
+            Name = "Jamess",
             Surname = "Bond",
             Health = new List<HealthDTO>
             {
