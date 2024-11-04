@@ -1,0 +1,8 @@
+name: First Action
+on: [pull_request]
+jobs:
+  my-first-job:
+    name: MyFirstJob
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'This is my first job'
