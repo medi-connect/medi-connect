@@ -25,7 +25,7 @@ public class MainController : ControllerBase
                 new()
                 {
                     Health = 60,
-                    Status = "Kinda ok",
+                    Status = "Kinda ok changed",
                     Unhealthy = false
                 },
                 new()
