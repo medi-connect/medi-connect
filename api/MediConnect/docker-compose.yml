@@ -1,6 +1,0 @@
-﻿services:
-  mediconnect:
-    image: mediconnect
-    build:
-      context: .
-      dockerfile: Dockerfile
