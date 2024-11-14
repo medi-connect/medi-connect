@@ -5,7 +5,7 @@ namespace AppointmentService.Controllers;
 
 [ApiController]
 [Route("/api/v1/[controller]")]
-public class MainContoller
+public class MainContoller: ControllerBase
 {
     public AppointmentModel GetAppointment()
     {
