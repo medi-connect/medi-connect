@@ -5,23 +5,11 @@ CREATE TABLE dbo.UserAccount
     email         NVARCHAR (255) NOT NULL,
     password      NVARCHAR (255) NOT NULL,
     status        TINYINT NOT NULL,
-    sys_timestamp DATETIME,
-    sys_created   DATETIME
+    sys_timestamp DATETIME DEFAULT GETDATE(),
+    sys_created   DATETIME DEFAULT GETDATE()
 );
 
--- Create INSERT trigger
-CREATE TRIGGER trUserAccountInsert
-    ON dbo.UserAccount
-    INSTEAD OF INSERT
-    AS
-BEGIN
-
-    INSERT INTO dbo.UserAccount (email, password, status, sys_timestamp, sys_created)
-    SELECT email, password,status, GETDATE(), GETDATE()
-    FROM inserted;
-END;
-
--- Create UPDATE trigger
+-- TRIGGERS
 CREATE TRIGGER trUserAccountUpdate
     ON dbo.UserAccount
     AFTER UPDATE
@@ -34,6 +22,14 @@ BEGIN
              INNER JOIN inserted i ON e.ID = i.ID;
 END;
 
+-- PROCEDURES
+CREATE PROCEDURE InsertUserAccount
+    @Email NVARCHAR(255),
+    @Password NVARCHAR(255),
+    @Status TINYINT
+AS
+BEGIN
+    INSERT INTO dbo.UserAccount (email, password, status)
+    VALUES (@Email, @Password, @Status);
 
-
-
+END;
