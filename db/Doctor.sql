@@ -1,7 +1,7 @@
 -- Create table
 CREATE TABLE dbo.Doctor
 (
-    id            INT PRIMARY KEY,
+    id            INT PRIMARY KEY IDENTITY (1000, 1),
     name          NVARCHAR (255) NOT NULL,
     surname       NVARCHAR (255) NOT NULL,
     sys_timestamp DATETIME,

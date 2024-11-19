@@ -1,7 +1,7 @@
 -- Create table
 CREATE TABLE dbo.Feedback
 (
-    id            INT PRIMARY KEY,
+    id            INT PRIMARY KEY IDENTITY (1,1),
     rate          TINYINT NOT NULL,
     review        NVARCHAR (4000) NOT NULL,
     sys_timestamp DATETIME,
@@ -32,6 +32,3 @@ BEGIN
     FROM dbo.Feedback e
              INNER JOIN inserted i ON e.ID = i.ID;
 END;
-
-
-

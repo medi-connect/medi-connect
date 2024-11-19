@@ -1,7 +1,7 @@
 -- Create table
 CREATE TABLE dbo.UserAccount
 (
-    id            INT PRIMARY KEY,
+    id            INT PRIMARY KEY IDENTITY (1000,1),
     email         NVARCHAR (255) NOT NULL,
     password      NVARCHAR (255) NOT NULL,
     status        TINYINT NOT NULL,

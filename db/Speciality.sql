@@ -1,7 +1,7 @@
 -- Create table
 CREATE TABLE dbo.Speciality
 (
-    id            INT PRIMARY KEY,
+    id            INT PRIMARY KEY IDENTITY (1,1),
     title         NVARCHAR (255) NOT NULL,
     description   NVARCHAR (255) NOT NULL,
     sys_timestamp DATETIME,
