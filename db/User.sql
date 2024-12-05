@@ -2,7 +2,7 @@
 CREATE TABLE dbo.UserAccount
 (
     id            INT PRIMARY KEY IDENTITY (1000,1),
-    email         NVARCHAR (255) NOT NULL,
+    email         NVARCHAR (255) NOT NULL UNIQUE,
     password      NVARCHAR (255) NOT NULL,
     status        TINYINT NOT NULL,
     sys_timestamp DATETIME DEFAULT GETDATE(),
@@ -22,8 +22,9 @@ BEGIN
              INNER JOIN inserted i ON e.ID = i.ID;
 END;
 
--- PROCEDURES
-CREATE PROCEDURE InsertUserAccount
+-- ============================
+--         PROCEDURES
+CREATE PROCEDURE dbo.InsertUserAccount
     @Email NVARCHAR(255),
     @Password NVARCHAR(255),
     @Status TINYINT
@@ -33,3 +34,20 @@ BEGIN
     VALUES (@Email, @Password, @Status);
 
 END;
+
+CREATE PROCEDURE dbo.GetUserCredentials
+    @Email    NVARCHAR(255),
+    @UserId   NVARCHAR(255) OUTPUT,
+    @Password NVARCHAR(255) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT @UserId = id, @Password = password FROM DBO.UserAccount WHERE email = @email;
+    IF @UserId IS NULL
+    BEGIN
+        -- Does not exist
+        SET @Password = NULL;
+    END
+END;
+
+SELECT id FROM DBO.UserAccount WHERE email = 'srebrov4@gmail.com' and password = '$2a$11$9iC/x.VdOIIoRI2lZvfQbeInmXZMM0URkYPJ8i3Mt/krrpPESt.Hi';
