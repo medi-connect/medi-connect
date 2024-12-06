@@ -1,6 +1,8 @@
+using UserService.Models;
+
 namespace DoctorService.Models;
 
-public class DoctorModel
+public class DoctorModel : UserDTO
 {
 	public int Id { get; set; }
     public string FirstName { get; set; }
