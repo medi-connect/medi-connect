@@ -14,8 +14,8 @@ public class MainController: ControllerBase
     private readonly SqlConnection connection; 
     public MainController(IConfiguration configuration)
     {
-        _connectionString = configuration["DB_CONNECTION_STRING"] ?? "";
-        connection = new SqlConnection(_connectionString);
+        _connectionString = configuration["DB_CONNECTION_STRING"] ?? throw new Exception("Connection string not found");
+		connection = new SqlConnection(_connectionString);
         connection.Open();
     }
     
@@ -66,13 +66,14 @@ public class MainController: ControllerBase
                 return BadRequest("Doctor information is incomplete.");
             }
             
-            var command = new SqlCommand(
-                "INSERT INTO Doctor (FirstName, LastName, Email, Speciality, BirthDate) OUTPUT INSERTED.id VALUES (@firstName, @lastName, @email, @speciality, @birthDate)", connection);
+			var command = new SqlCommand(
+            	"INSERT INTO Doctor (first_name, surname, email, speciality, sys_timestamp, sys_created) VALUES (@firstName, @lastName, @email, @speciality, @birthDate, @sysCreated); SELECT SCOPE_IDENTITY();", connection);
             command.Parameters.AddWithValue("@firstName", doctor.FirstName);
             command.Parameters.AddWithValue("@lastName", doctor.LastName);
             command.Parameters.AddWithValue("@email", doctor.Email);
             command.Parameters.AddWithValue("@speciality", doctor.Speciality);
             command.Parameters.AddWithValue("@birthDate", doctor.BirthDate);
+			command.Parameters.AddWithValue("@sysCreated", DateTime.UtcNow);
                 
             var newId = (int)(await command.ExecuteScalarAsync() ?? 0);
             return newId > 0 ? CreatedAtAction(nameof(GetDoctor), new { id = newId }, doctor) : StatusCode(500, "Error while inserting.");
