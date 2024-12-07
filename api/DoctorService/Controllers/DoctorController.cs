@@ -7,12 +7,12 @@ namespace DoctorService.Controllers;
 
 [ApiController]
 [Route("/api/v1/[controller]")]
-public class MainController: ControllerBase
+public class DoctorController: ControllerBase
 {
     
     private readonly string _connectionString;
     private readonly SqlConnection connection; 
-    public MainController(IConfiguration configuration)
+    public DoctorController(IConfiguration configuration)
     {
         _connectionString = configuration["DB_CONNECTION_STRING"] ?? throw new Exception("Connection string not found");
 		connection = new SqlConnection(_connectionString);
@@ -56,8 +56,8 @@ public class MainController: ControllerBase
         return rows;
     }
 
-    [HttpPost("addDoctor")]
-    public async Task<ActionResult> AddDoctor([FromBody] DoctorModel doctor)
+    [HttpPost("registerDoctor")]
+    public async Task<ActionResult> AddDoctor([FromBody] DoctorModel? doctor)
     {
         try
         {
@@ -82,7 +82,5 @@ public class MainController: ControllerBase
         {
             return StatusCode(500, ex.Message);
         } 
-        
-
     }
 }
