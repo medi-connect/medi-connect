@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: srebrovn/user-service:v1.1.1
+          image: srebrovn/user-service:v1.1.2
           imagePullPolicy: Always
           ports:
             - containerPort: 8001
