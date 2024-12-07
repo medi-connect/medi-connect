@@ -5,13 +5,13 @@ namespace UserService.Controllers;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    public DbSet<UserDTO> UserAccount { get; set; }
+    public DbSet<UserModel> UserAccount { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<UserDTO>(entity =>
+        modelBuilder.Entity<UserModel>(entity =>
         {
             // Specify the table name and schema here
             entity.ToTable("UserAccount", "dbo");
