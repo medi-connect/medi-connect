@@ -1,6 +1,6 @@
 namespace UserService.Models;
 
-public class PatientDTO : UserDTO
+public class PatientModel : UserModel
 {
     public string Name { get; set; }
     public string Surname { get; set; }
