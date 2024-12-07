@@ -2,13 +2,12 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
+using UserService.Enum;
 using UserService.Models;
 
 namespace UserService.Controllers;
@@ -17,7 +16,6 @@ namespace UserService.Controllers;
 [Route("api/v1/[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly string _connectionString;
     private readonly ApplicationDbContext dbContext;
 
     public UserController(ApplicationDbContext dbContext)
@@ -36,56 +34,157 @@ public class UserController : ControllerBase
         return await LoginUser(request);
     }
     
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
+    public async Task<IActionResult> RegisterPatient(RegisterModel registerModel)
     {
         
-        if (UserExists(registerDTO.Email))
+        if (UserExists(registerModel.Email))
         {
-            return BadRequest("Email already exists");
+            return BadRequest("User already exists.");
         }
 
-        return await RegisterUser(registerDTO);
-    }
+        registerModel.Id = await RegisterUserInternal(registerModel);
 
-    private bool UserExists(string email)
+        if (registerModel.Id is -1 or null)
+        {
+            return StatusCode(500, "An unexpected error occurred. Please try again later.");
+        }
+
+        return await RegisterPatientInternal(registerModel);
+    }
+    
+    [HttpPost("registerDoctor")]
+    public async Task<IActionResult> RegisterDoctor([FromBody] RegisterModel registerModel)
+    {
+        
+        if (UserExists(registerModel.Email))
+        {
+            return BadRequest("User already exists.");
+        }
+
+        registerModel.Id = await RegisterUserInternal(registerModel);
+
+        if (registerModel.Id is -1 or null)
+        {
+            return StatusCode(500, "An unexpected error occurred. Please try again later.");
+        }
+
+        return await RegisterDoctorInternal(registerModel);
+    }
+    public bool UserExists(string email)
     {
         return dbContext.UserAccount.Any(u => u.Email == email);
     }
 
-    private async Task<IActionResult> RegisterUser(RegisterDTO registerDTO)
+    private async Task<int> RegisterUserInternal(UserModel userModel)
     {
-        var patient = new PatientDTO()
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(userModel.Password);
+        userModel.Status = (short)UserStatusEnum.ACTIVE;
+        var emailParam = new SqlParameter("@Email", userModel.Email);
+        var passwordParam = new SqlParameter("@Password", hashedPassword);
+        var statusParam = new SqlParameter("@Status", userModel.Status);
+        var idParam = new SqlParameter
         {
-            Name = registerDTO.Name,
-            Surname = registerDTO.Surname,
-            Email = registerDTO.Email,
-            Password = BCrypt.Net.BCrypt.HashPassword(registerDTO.Password),
-            BirthDate = registerDTO.BirthDate
+            ParameterName = "@Id",
+            SqlDbType = SqlDbType.Int,
+            Direction = ParameterDirection.Output
         };
-
-        var emailParam = new SqlParameter("@Email", patient.Email);
-        var passwordParam = new SqlParameter("@Password", patient.Password);
-        var statusParam = new SqlParameter("@Status", patient.Status);
 
         try
         {
-            const string command = "EXEC InsertUserAccount @Email, @Password, @Status";
+            const string command = "EXEC dbo.InsertUserAccount @Email, @Password, @Status, @Id OUTPUT;";
             var rowsAffected = await dbContext.Database.ExecuteSqlRawAsync(
                 command,
-                emailParam, passwordParam, statusParam
+                emailParam, passwordParam, statusParam, idParam
             );
-            
-            if (rowsAffected > 0)
+
+            var userId = idParam.Value == DBNull.Value ? null : (int?)idParam.Value;
+            if (rowsAffected > 0 && userId.HasValue)
             {
-                return Ok($"Registration successful, {patient.Email}");
+                return userId.Value;
             }
 
-            return BadRequest($"Registration failed");
+            return -1;
         }
         catch (Exception e)
         {
-            return BadRequest("Error occured: " + e.Message);
+            return -1;
+        }
+    }
+    
+    private async Task<IActionResult> RegisterPatientInternal(RegisterModel registerModel)
+    {
+        var userIdParam = new SqlParameter("@UserId", registerModel.Id);
+        var nameParam = new SqlParameter("@Name", registerModel.Name);
+        var surnameParam = new SqlParameter("@Surname", registerModel.Surname);
+        var birthDateParam = new SqlParameter("@BirthDate", registerModel.BirthDate);
+        var idParam = new SqlParameter
+        {
+            ParameterName = "@Id",
+            SqlDbType = SqlDbType.Int,
+            Direction = ParameterDirection.Output
+        };
+
+        try
+        {
+            const string command = "EXEC dbo.InsertPatientAccount @UserId, @Name, @Surname, @BirthDate, @Id OUTPUT;";
+            var rowsAffected = await dbContext.Database.ExecuteSqlRawAsync(
+                command,
+                userIdParam, nameParam, surnameParam, birthDateParam, idParam
+            );
+            var patientId = idParam.Value as int?;
+            if (rowsAffected > 0 && patientId != null)
+            {
+                return Ok("Registration successful. " +  new
+                {
+                    Id = patientId,
+                    Email = registerModel.Email,
+                    Type = UserTypeEnum.PATIENT
+                });
+            }
+
+            return StatusCode(500, "An unexpected error occurred.");
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, "An unexpected error occurred. Error: " + e.Message);
+        }
+    }
+    
+    private async Task<IActionResult> RegisterDoctorInternal(RegisterModel registerModel)
+    {
+        var userIdParam = new SqlParameter("@UserId", registerModel.Id);
+        var nameParam = new SqlParameter("@Name", registerModel.Name);
+        var surnameParam = new SqlParameter("@Surname", registerModel.Surname);
+        var specialityParam = new SqlParameter("@Speciality", registerModel.Speciality);
+        var idParam = new SqlParameter
+        {
+            ParameterName = "@Id",
+            SqlDbType = SqlDbType.Int,
+            Direction = ParameterDirection.Output
+        };
+
+        try
+        {
+            const string command = "EXEC dbo.InsertDoctorAccount @UserId, @Name, @Surname, @Speciality, @Id OUTPUT;";
+            var rowsAffected = await dbContext.Database.ExecuteSqlRawAsync(
+                command,
+                userIdParam, nameParam, surnameParam, specialityParam, idParam
+            );
+            var doctorId = idParam.Value as int?;
+            if (rowsAffected > 0 && doctorId != null)
+            {
+                return Ok("Registration successful. " +  new
+                {
+                    Id = doctorId,
+                    Email = registerModel.Email,
+                    Type = UserTypeEnum.DOCTOR
+                });            }
+
+            return StatusCode(500, "An unexpected error occurred.");
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, "An unexpected error occurred. Error: " + e.Message);
         }
     }
 
@@ -123,7 +222,7 @@ public class UserController : ControllerBase
                 return Unauthorized(new { message = "Invalid username or password." });
             }
             
-            if (BCrypt.Net.BCrypt.Verify(request.Password, passwordHash))
+            if (VerifyPassword(request.Password, passwordHash))
             {
                 return Ok(GenerateAuthResponse(request.Email, userId));
             }
@@ -159,8 +258,8 @@ public class UserController : ControllerBase
     {
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, userId),
-            new Claim(ClaimTypes.Email, email)
+            new(ClaimTypes.NameIdentifier, userId),
+            new(ClaimTypes.Email, email)
         };
         
         var jwToken = new JwtSecurityToken(
