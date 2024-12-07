@@ -2,25 +2,13 @@
 CREATE TABLE dbo.Doctor
 (
     id            INT PRIMARY KEY IDENTITY (1000, 1),
-    name          NVARCHAR2 (255) NOT NULL,
-    surname       NVARCHAR2 (255) NOT NULL,
-    speciality    NVARCHAR2 (255),
-    sex           TINYINT,
+    name          NVARCHAR (255) NOT NULL,
+    surname       NVARCHAR (255) NOT NULL,
+    speciality    NVARCHAR (255),
+    user_id       INT,
     sys_timestamp DATETIME,
     sys_created   DATETIME
 );
-
--- Create INSERT trigger
-CREATE TRIGGER trDoctorInsert
-    ON dbo.Doctor
-    INSTEAD OF INSERT
-    AS
-BEGIN
-
-    INSERT INTO dbo.Doctor (name, surname, sys_timestamp, sys_created)
-    SELECT name, surname, GETDATE(), GETDATE()
-    FROM inserted;
-END;
 
 -- Create UPDATE trigger
 CREATE TRIGGER trDoctorUpdate
@@ -37,18 +25,22 @@ END;
 
 
 -- PROCEDURES --
-
-CREATE PROCEDURE InsertDoctor
-    @Name NVARCHAR(50),
+CREATE PROCEDURE InsertDoctorAccount
+    @UserId INT,
+    @Name   NVARCHAR(50),
     @Surname NVARCHAR(50),
-    @Email NVARCHAR(100)
+    @Speciality NVARCHAR(100),
+    @Id         INT OUTPUT
 AS
 BEGIN
     -- Ensure you handle errors/exceptions
 BEGIN TRY
         -- Insert data into Employees table
-INSERT INTO dbo.Doctor (name, surname, speciality)
-        VALUES (@@, @FirstName, @LastName, @Email);
+INSERT INTO dbo.Doctor (name, surname, speciality, user_id, sys_timestamp, sys_created)
+VALUES (@Name,@Surname, @Speciality, @UserId, GETDATE(), GETDATE());
+
+SET @Id = SCOPE_IDENTITY();
+
 
 END TRY
 BEGIN CATCH

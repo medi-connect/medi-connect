@@ -4,22 +4,11 @@ CREATE TABLE dbo.Patient
     id            INT PRIMARY KEY IDENTITY (1000,1),
     name          NVARCHAR (255) NOT NULL,
     surname       NVARCHAR (255) NOT NULL,
-    birth_date    DATETIME NOT NULL,
+    birth_date    DATE NOT NULL,
+    user_id       INT NOT NULL,
     sys_timestamp DATETIME,
     sys_created   DATETIME
 );
-
--- Create INSERT trigger
-CREATE TRIGGER trPatientInsert
-    ON dbo.Patient
-    INSTEAD OF INSERT
-    AS
-BEGIN
-
-    INSERT INTO dbo.Patient (name, surname, birth_date, sys_timestamp, sys_created)
-    SELECT name, surname,birth_date, GETDATE(), GETDATE()
-    FROM inserted;
-END;
 
 -- Create UPDATE trigger
 CREATE TRIGGER trPatientUpdate
@@ -35,5 +24,18 @@ BEGIN
 END;
 
 
+-- ============================
+--         PROCEDURES
+CREATE PROCEDURE dbo.InsertPatientAccount
+    @UserId     INT,
+    @Name       NVARCHAR(255),
+    @Surname    NVARCHAR(255),
+    @BirthDate  DATE,
+    @Id         INT OUTPUT
+AS
+BEGIN
+    INSERT INTO dbo.Patient (name, surname, birth_date, user_id, sys_timestamp, sys_created)
+    VALUES (@Name, @Surname, @BirthDate, @UserId, GETDATE(), GETDATE());
 
-
+    SET @Id = SCOPE_IDENTITY();
+END;

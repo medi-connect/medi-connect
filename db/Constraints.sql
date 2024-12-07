@@ -1,11 +1,11 @@
 -- Doctor
 ALTER TABLE dbo.Doctor
-    ADD CONSTRAINT FK_Doctor_User FOREIGN KEY (id)
+    ADD CONSTRAINT FK_Doctor_User FOREIGN KEY (user_id)
         REFERENCES dbo.UserAccount(id);
 
 -- Patient
 ALTER TABLE dbo.Patient
-    ADD CONSTRAINT FK_Patient_User FOREIGN KEY (id)
+    ADD CONSTRAINT FK_Patient_User FOREIGN KEY (user_id)
         REFERENCES dbo.UserAccount(id);
 -- Appointment
 ALTER TABLE dbo.Appointment

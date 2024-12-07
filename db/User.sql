@@ -27,12 +27,13 @@ END;
 CREATE PROCEDURE dbo.InsertUserAccount
     @Email NVARCHAR(255),
     @Password NVARCHAR(255),
-    @Status TINYINT
+    @Status TINYINT,
+    @Id INT OUTPUT
 AS
 BEGIN
     INSERT INTO dbo.UserAccount (email, password, status)
     VALUES (@Email, @Password, @Status);
-
+    SET @Id = SCOPE_IDENTITY();
 END;
 
 CREATE PROCEDURE dbo.GetUserCredentials
@@ -49,5 +50,3 @@ BEGIN
         SET @Password = NULL;
     END
 END;
-
-SELECT id FROM DBO.UserAccount WHERE email = 'srebrov4@gmail.com' and password = '$2a$11$9iC/x.VdOIIoRI2lZvfQbeInmXZMM0URkYPJ8i3Mt/krrpPESt.Hi';
