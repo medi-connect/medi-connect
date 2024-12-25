@@ -1,86 +1,87 @@
+using System.Text;
+using System.Text.Json;
 using DoctorService.Models;
+using DoctorService.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace DoctorService.Controllers;
-
 
 [ApiController]
 [Route("/api/v1/[controller]")]
 public class DoctorController: ControllerBase
 {
     
-    private readonly string _connectionString;
-    private readonly SqlConnection connection; 
-    public DoctorController(IConfiguration configuration)
+    private readonly ApplicationDbContext dbContext;
+    private readonly HttpClient httpClient;
+    public DoctorController(ApplicationDbContext dbContext, HttpClient httpClient)
     {
-        _connectionString = configuration["DB_CONNECTION_STRING"] ?? throw new Exception("Connection string not found");
-		connection = new SqlConnection(_connectionString);
-        connection.Open();
-    }
-    
-    [HttpGet("getDoctor")]
-    public DoctorModel GetDoctor()
-    {
-        return new DoctorModel
-        {
-            FirstName = "Doctor 1",
-            LastName = "Doctor 2",
-            Speciality = "Hospital1"
-        };
+        this.dbContext = dbContext;
+        this.httpClient = httpClient;
     }
     
     [HttpGet("getDoctor/{id}")]
-    public List<DoctorModel> GetDoctor([FromRoute] string id)
+    public async Task<DoctorModel?> GetDoctor([FromRoute] string id)
     {
-        var rows = new List<DoctorModel>();
-        var command = new SqlCommand("SELECT * FROM Doctor WHERE id = @id", connection);
-        command.Parameters.AddWithValue("@id", id);
-        using SqlDataReader reader = command.ExecuteReader();
-
-        if (reader.HasRows)
-        {
-            while (reader.Read())
-            {
-                rows.Add(new DoctorModel
-                {
-                    FirstName = reader.GetString(1),
-                    LastName = reader.GetString(2),
-                    Email = reader.GetString(3),
-                    Speciality = reader.GetString(4),
-                    BirthDate = reader.GetDateTime(5),
-                }); 
-            }
-        }
-
-        return rows;
+        var record = await dbContext.Doctor.FindAsync(id);
+        return record;
     }
 
-    [HttpPost("registerDoctor")]
-    public async Task<ActionResult> AddDoctor([FromBody] DoctorModel? doctor)
+    [HttpPost("register")]
+    public async Task<ActionResult> RegisterDoctor([FromBody] DoctorModel? doctor)
     {
+        const string url = "http://localhost:8001/api/v1/user/registerDoctor";
+        var content = new StringContent(JsonSerializer.Serialize(doctor), Encoding.UTF8, "application/json");
         try
         {
             if (doctor == null)
             {
-                return BadRequest("Doctor information is incomplete.");
+                return BadRequest("Insufficient information.");
             }
+            var response = await httpClient.PostAsync(url, content);
+            response.EnsureSuccessStatusCode();
             
-			var command = new SqlCommand(
-            	"INSERT INTO Doctor (first_name, surname, email, speciality, sys_timestamp, sys_created) VALUES (@firstName, @lastName, @email, @speciality, @birthDate, @sysCreated); SELECT SCOPE_IDENTITY();", connection);
-            command.Parameters.AddWithValue("@firstName", doctor.FirstName);
-            command.Parameters.AddWithValue("@lastName", doctor.LastName);
-            command.Parameters.AddWithValue("@email", doctor.Email);
-            command.Parameters.AddWithValue("@speciality", doctor.Speciality);
-            command.Parameters.AddWithValue("@birthDate", doctor.BirthDate);
-			command.Parameters.AddWithValue("@sysCreated", DateTime.UtcNow);
-                
-            var newId = (int)(await command.ExecuteScalarAsync() ?? 0);
-            return newId > 0 ? CreatedAtAction(nameof(GetDoctor), new { id = newId }, doctor) : StatusCode(500, "Error while inserting.");
+            var responseString = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true // Allows JSON property names to be case-insensitive
+            };
+            var doctorModel = JsonSerializer.Deserialize<DoctorModel>(responseString, options);
+            if (doctorModel?.UserId == null)
+            {
+                return BadRequest("Failed to obtain userId.");
+            }
+
+            return await RegisterDoctorInternal(doctorModel);
         }
         catch (Exception ex)
         {
             return StatusCode(500, ex.Message);
         } 
+    }
+    private async Task<ActionResult> RegisterDoctorInternal(DoctorModel doctorModel)
+    {
+        const string queryInsert = @"
+        INSERT INTO dbo.Doctor (user_id, name, surname, speciality)
+        VALUES (@user_id, @name, @surname, @speciality);";
+        
+        try
+        {
+            // Execute raw SQL via DbContext
+            await dbContext.Database.ExecuteSqlRawAsync(queryInsert, 
+                    new SqlParameter("@user_id", doctorModel.UserId),
+                    new SqlParameter("@name", doctorModel.Name),
+                    new SqlParameter("@surname", doctorModel.Surname),
+                    new SqlParameter("@speciality", doctorModel.Speciality ?? (object)DBNull.Value)
+                );
+
+            Console.WriteLine("Doctor successfully added!");
+        }
+        catch (Exception ex)
+        {
+             StatusCode(500, ex.Message);
+        }
+        return StatusCode(200);
     }
 }
