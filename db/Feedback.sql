@@ -1,24 +1,13 @@
 -- Create table
 CREATE TABLE dbo.Feedback
 (
-    id            INT PRIMARY KEY IDENTITY (1,1),
-    rate          TINYINT NOT NULL,
-    review        NVARCHAR (4000) NOT NULL,
-    sys_timestamp DATETIME,
-    sys_created   DATETIME
+    feedback_id    INT PRIMARY KEY IDENTITY (1000,1),
+    rate           TINYINT NOT NULL,
+    review         NVARCHAR (4000) NOT NULL,
+    appointment_id INT NOT NULL,
+    sys_timestamp  DATETIME DEFAULT GETDATE(),
+    sys_created    DATETIME DEFAULT GETDATE()
 );
-
--- Create INSERT trigger
-CREATE TRIGGER trFeedbackInsert
-    ON dbo.Feedback
-    INSTEAD OF INSERT
-    AS
-BEGIN
-
-    INSERT INTO dbo.Feedback (rate, review, sys_timestamp, sys_created)
-    SELECT rate, review, GETDATE(), GETDATE()
-    FROM inserted;
-END;
 
 -- Create UPDATE trigger
 CREATE TRIGGER trFeedbackUpdate
@@ -30,5 +19,5 @@ BEGIN
     UPDATE dbo.Feedback
     SET sys_timestamp = GETDATE()
     FROM dbo.Feedback e
-             INNER JOIN inserted i ON e.ID = i.ID;
+             INNER JOIN inserted i ON e.feedback_id = i.feedback_id;
 END;

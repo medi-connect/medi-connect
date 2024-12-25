@@ -1,30 +1,19 @@
 -- Create table
 CREATE TABLE dbo.Appointment
 (
-    id            INT PRIMARY KEY IDENTITY (1000,1),
-    start_time    DATETIME NOT NULL,
-    end_time      DATETIME,
-    title         NVARCHAR (255) NOT NULL,
-    description   NVARCHAR (1000),
-    status        NVARCHAR (255) DEFAULT 'Pending',
-    doctor_id     INT NOT NULL,
-    patient_id    INT NOT NULL,
-    created_by    BIT DEFAULT 0, -- 0 - Patient, 1 - Doctor
-    sys_timestamp DATETIME,
-    sys_created   DATETIME
+    appointment_id INT PRIMARY KEY IDENTITY (1000,1),
+    start_time     DATETIME NOT NULL,
+    end_time       DATETIME,
+    title          NVARCHAR (255) NOT NULL,
+    description    NVARCHAR (1000),
+    status         NVARCHAR (255) DEFAULT 'Pending',
+    doctor_id      INT NOT NULL,
+    patient_id     INT NOT NULL,
+    created_by     BIT DEFAULT 0, -- 0 - Patient, 1 - Doctor
+    sys_timestamp  DATETIME DEFAULT GETDATE(),
+    sys_created    DATETIME DEFAULT GETDATE()
 );
 
--- Create INSERT trigger
-CREATE TRIGGER trAppointmentInsert
-    ON dbo.Appointment
-    INSTEAD OF INSERT
-    AS
-BEGIN
-
-    INSERT INTO dbo.Appointment (start_time, end_time, title, status, description, doctor_id, patient_id, created_by, sys_timestamp, sys_created)
-    SELECT start_time, end_time, title, status, description, doctor_id, patient_id, created_by, GETDATE(), GETDATE()
-    FROM inserted;
-END;
 
 -- Create UPDATE trigger
 CREATE TRIGGER trAppointmentUpdate
@@ -36,7 +25,7 @@ BEGIN
     UPDATE dbo.Appointment
     SET sys_timestamp = GETDATE()
     FROM dbo.Appointment e
-             INNER JOIN inserted i ON e.ID = i.ID;
+             INNER JOIN inserted i ON e.appointment_id = i.appointment_id;
 END;
 
 ALTER TABLE dbo.Appointment
