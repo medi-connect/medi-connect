@@ -1,4 +1,4 @@
-namespace UserService.Models;
+namespace DoctorService.Models;
 
 public class UserModel
 {
