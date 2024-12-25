@@ -15,10 +15,10 @@ public class PatientController : ControllerBase
         userController = new UserController(dbContext);
     }
     [HttpPost("registerPatient")]
-    public async Task<IActionResult> Register([FromBody] RegisterModel registerModel)
+    public async Task<IActionResult> Register([FromBody] PatientModel patientModel)
     {
 
-        return await userController.RegisterPatient(registerModel);
+        return await userController.RegisterPatient(patientModel);
     }
 
 }
