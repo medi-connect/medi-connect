@@ -6,14 +6,13 @@ CREATE TABLE dbo.Appointment
     end_time       DATETIME,
     title          NVARCHAR (255) NOT NULL,
     description    NVARCHAR (1000),
-    status         NVARCHAR (255) DEFAULT 'Pending',
+    status         INT DEFAULT 0,
     doctor_id      INT NOT NULL,
     patient_id     INT NOT NULL,
     created_by     BIT DEFAULT 0, -- 0 - Patient, 1 - Doctor
     sys_timestamp  DATETIME DEFAULT GETDATE(),
     sys_created    DATETIME DEFAULT GETDATE()
 );
-
 
 -- Create UPDATE trigger
 CREATE TRIGGER trAppointmentUpdate
@@ -30,7 +29,7 @@ END;
 
 ALTER TABLE dbo.Appointment
 ADD CONSTRAINT CK_Appointment_Status
-CHECK (status IN ('Pending', 'Confirmed', 'Declined', 'Canceled'));
+CHECK (status IN (0,1,2,3));
 
 
 
