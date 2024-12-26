@@ -1,21 +1,28 @@
 using System.Data;
+using AppointmentService.Enums;
 using AppointmentService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace AppointmentService.Controllers;
 
 [ApiController]
 [Route("/api/v1/appointment")]
-public class MainController: ControllerBase
+public class AppointmentController: ControllerBase
 {
     private readonly SqlConnection connection; 
     private readonly string _connectionString;
-    public MainController(IConfiguration configuration)
+    private readonly HttpClient httpClient;
+    private readonly DbContext dbContext;
+
+    public AppointmentController(IConfiguration configuration, HttpClient httpClient, DbContext dbContext)
     {
         _connectionString = configuration["DB_CONNECTION_STRING"] ?? throw new Exception("Connection string not found");
         connection = new SqlConnection(_connectionString);
         connection.Open();
+        this.dbContext = dbContext;
+        this.httpClient = httpClient;
     }
     
     [HttpGet("getAppointment/{id}")]
@@ -215,7 +222,7 @@ public class MainController: ControllerBase
     {
         try
         {
-            string query = "SELECT COUNT(1) FROM Appointment WHERE id = @id";
+            string query = "SELECT COUNT(1) FROM Appointment WHERE appointment_id = @id";
             using var command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@Id", id);
         
@@ -229,7 +236,7 @@ public class MainController: ControllerBase
     }
     
     [HttpPut("modifyStatus/{id}")]
-    public async Task<ActionResult> ModifyStatus(int id, [FromBody] string status)
+    public async Task<ActionResult> ModifyStatus(int id, [FromBody] AppointmentStatus? status)
     {
         try
         {
@@ -239,15 +246,15 @@ public class MainController: ControllerBase
             {
                 return NotFound($"No appointment found with ID {id}.");
             }
-            if (string.IsNullOrWhiteSpace(status))
+            if (status == null)
             {
                 return BadRequest("Status cannot be empty.");
             }
 
-            string commandText = "UPDATE Appointment SET status = @Status WHERE Id = @Id";
+            string commandText = "UPDATE Appointment SET status = @Status WHERE appointment_id = @Id";
             using var command = new SqlCommand(commandText, connection);
-            command.Parameters.AddWithValue("@Status", status);
-            command.Parameters.AddWithValue("@Id", id);
+            command.Parameters.AddWithValue("@status", status);
+            command.Parameters.AddWithValue("@appointment_id", id);
 
             int rowsAffected = await command.ExecuteNonQueryAsync();
 
