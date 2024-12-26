@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: appointment-service
+  labels:
+    role: appointment-service
+spec:
+  selector: 
+    app: appointment-service
+  ports:
+    - protocol: TCP
+      port: 8004
+  type: LoadBalancer
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: appointment-service
+  labels:
+    role: appointment-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appointment-service
+  template:
+    metadata:
+      labels:
+        app: appointment-service
+    spec:
+      containers:
+        - name: appointment-service
+          image: srebrovn/appointment-service:v1.1.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8004
