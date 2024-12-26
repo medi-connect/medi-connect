@@ -1,0 +1,50 @@
+### POD ###
+kind: Pod
+apiVersion: v1
+metadata:
+  name: medi-connect-pod
+  labels:
+    app: medi-connect
+spec:
+  containers:
+  - name: medi-connect
+    image: srebrovn/medi-connect:v2
+    ports:
+      - containerPort: 8080
+---
+### SERVICE ###
+kind: Service
+apiVersion: v1
+metadata:
+  name: medi-connect-service
+spec:
+  selector:
+    app: medi-connect
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: medi-connect
+  labels:
+    app: medi-connect
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: medi-connect
+  template:
+    metadata:
+      labels:
+        app: medi-connect
+    spec:
+      containers:
+        - name: medi-connect
+          image: srebrovn/medi-connect:v2
+          ports:
+            - containerPort: 8080
