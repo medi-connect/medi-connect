@@ -22,16 +22,3 @@ BEGIN
              INNER JOIN inserted i ON e.user_id = i.user_id;
 END;
 
--- ============================
---         PROCEDURES
-CREATE PROCEDURE dbo.InsertUserAccount
-    @Email NVARCHAR(255),
-    @Password NVARCHAR(255),
-    @Status TINYINT,
-    @Id INT OUTPUT
-AS
-BEGIN
-    INSERT INTO dbo.UserAccount (email, password, status)
-    VALUES (@Email, @Password, @Status);
-    SET @Id = SCOPE_IDENTITY();
-END;
