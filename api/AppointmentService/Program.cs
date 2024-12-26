@@ -15,6 +15,7 @@ foreach (var kv in Environment.GetEnvironmentVariables(EnvironmentVariableTarget
 builder.Services.AddControllers();
 builder.Services.AddDbContext<DbContext>(options =>
     options.UseSqlServer(builder.Configuration["DB_CONNECTION_STRING"]));
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

@@ -68,7 +68,6 @@ public class DoctorController: ControllerBase
         
         try
         {
-            // Execute raw SQL via DbContext
             await dbContext.Database.ExecuteSqlRawAsync(queryInsert, 
                     new SqlParameter("@user_id", doctorModel.UserId),
                     new SqlParameter("@name", doctorModel.Name),

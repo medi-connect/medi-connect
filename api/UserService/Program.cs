@@ -11,6 +11,7 @@ Env.Load();
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<UserService.Controllers.UserService>();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")));
 
