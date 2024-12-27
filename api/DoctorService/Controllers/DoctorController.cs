@@ -21,6 +21,35 @@ public class DoctorController: ControllerBase
         this.httpClient = httpClient;
     }
     
+    /* =============================
+     * GET METHODS
+     =============================*/ 
+    [HttpGet("getAllDoctors")]
+    public async Task<List<DoctorModel>> GetAllDoctors()
+    {
+        var query = @"SELECT user_id AS UserId, 
+                             name AS Name, 
+                             surname AS Surname, 
+                             speciality AS Speciality,
+                             null as Email,
+                             null as Password,
+                             null as Status
+                      FROM dbo.Doctor;";
+
+        try
+        {
+            var doctors = await dbContext.Database
+                .SqlQueryRaw<DoctorModel>(query)
+                .ToListAsync();
+
+            return doctors;
+        }
+        catch
+        {
+            return new List<DoctorModel>();
+        }
+    }
+    
     [HttpGet("getDoctor/{id}")]
     public async Task<DoctorModel?> GetDoctor([FromRoute] int id)
     {
@@ -61,36 +90,9 @@ public class DoctorController: ControllerBase
         
         return doctors;
     }
-
-    [HttpPut("updateDoctor/{id}")]
-    public async Task<ActionResult> UpdateDoctor([FromRoute] int id, [FromBody] DoctorModel doctor)
-    {
-        var query = @"UPDATE dbo.Doctor
-                              SET name = @Name,
-                                  surname = @Surname,
-                                  speciality = @Speciality
-                      WHERE user_id = @UserId";
-
-        try
-        {
-            var rowsAffected = await dbContext.Database
-                .ExecuteSqlRawAsync(query, new SqlParameter("@Name", doctor.Name),
-                    new SqlParameter("@Surname", doctor.Surname),
-                    new SqlParameter("@Speciality", doctor.Speciality),
-                    new SqlParameter("@UserId", id));
-            if (rowsAffected == 0)
-            {
-                return BadRequest("Doctor with ID; " + id + " does not exist");
-            }
-
-            return Ok(doctor);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest("Error: " + ex.Message);
-        }
-    }
-
+    /* =============================
+     * POST METHODS
+     =============================*/ 
     [HttpPost("register")]
     public async Task<ActionResult> RegisterDoctor([FromBody] DoctorModel? doctor)
     {
@@ -124,6 +126,38 @@ public class DoctorController: ControllerBase
             return StatusCode(500, ex.Message);
         } 
     }
+    /* =============================
+     * PUT METHODS
+     =============================*/ 
+    [HttpPut("updateDoctor/{id}")]
+    public async Task<ActionResult> UpdateDoctor([FromRoute] int id, [FromBody] DoctorModel doctor)
+    {
+        var query = @"UPDATE dbo.Doctor
+                              SET name = @Name,
+                                  surname = @Surname,
+                                  speciality = @Speciality
+                      WHERE user_id = @UserId";
+
+        try
+        {
+            var rowsAffected = await dbContext.Database
+                .ExecuteSqlRawAsync(query, new SqlParameter("@Name", doctor.Name),
+                    new SqlParameter("@Surname", doctor.Surname),
+                    new SqlParameter("@Speciality", doctor.Speciality),
+                    new SqlParameter("@UserId", id));
+            if (rowsAffected == 0)
+            {
+                return BadRequest("Doctor with ID; " + id + " does not exist");
+            }
+
+            return Ok(doctor);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest("Error: " + ex.Message);
+        }
+    }
+   
     private async Task<ActionResult> RegisterDoctorInternal(DoctorModel doctorModel)
     {
         const string queryInsert = @"
