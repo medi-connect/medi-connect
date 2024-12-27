@@ -42,9 +42,30 @@ public class DoctorController: ControllerBase
         return doctor;
     }
 
+    [HttpGet("getDoctorsBySpeciality/{speciality}")]
+    public async Task<List<DoctorModel>> GetDoctorsBySpeciality([FromRoute] string speciality)
+    {
+        var query = @"SELECT user_id AS UserId, 
+                             name AS Name, 
+                             surname AS Surname, 
+                             speciality AS Speciality,
+                             null as Email,
+                             null as Password,
+                             null as Status
+                      FROM dbo.Doctor 
+                      WHERE speciality = @Speciality";
+
+        var doctors = await dbContext.Database
+            .SqlQueryRaw<DoctorModel>(query, new SqlParameter("@Speciality", speciality))
+            .ToListAsync();
+        
+        return doctors;
+    }
+
     [HttpPost("register")]
     public async Task<ActionResult> RegisterDoctor([FromBody] DoctorModel? doctor)
     {
+        // As all Microservices are for themselves, we create record in the user table in the User MS
         const string url = "http://localhost:8001/api/v1/user/registerDoctor";
         var content = new StringContent(JsonSerializer.Serialize(doctor), Encoding.UTF8, "application/json");
         try
