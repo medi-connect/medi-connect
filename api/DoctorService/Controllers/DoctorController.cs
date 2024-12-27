@@ -89,7 +89,6 @@ public class DoctorController: ControllerBase
                     new SqlParameter("@speciality", doctorModel.Speciality ?? (object)DBNull.Value)
                 );
 
-            Console.WriteLine("Doctor successfully added!");
         }
         catch (Exception ex)
         {
