@@ -62,6 +62,35 @@ public class DoctorController: ControllerBase
         return doctors;
     }
 
+    [HttpPut("updateDoctor/{id}")]
+    public async Task<ActionResult> UpdateDoctor([FromRoute] int id, [FromBody] DoctorModel doctor)
+    {
+        var query = @"UPDATE dbo.Doctor
+                              SET name = @Name,
+                                  surname = @Surname,
+                                  speciality = @Speciality
+                      WHERE user_id = @UserId";
+
+        try
+        {
+            var rowsAffected = await dbContext.Database
+                .ExecuteSqlRawAsync(query, new SqlParameter("@Name", doctor.Name),
+                    new SqlParameter("@Surname", doctor.Surname),
+                    new SqlParameter("@Speciality", doctor.Speciality),
+                    new SqlParameter("@UserId", id));
+            if (rowsAffected == 0)
+            {
+                return BadRequest("Doctor with ID; " + id + " does not exist");
+            }
+
+            return Ok(doctor);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest("Error: " + ex.Message);
+        }
+    }
+
     [HttpPost("register")]
     public async Task<ActionResult> RegisterDoctor([FromBody] DoctorModel? doctor)
     {
