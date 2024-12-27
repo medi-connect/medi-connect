@@ -70,12 +70,15 @@ public class PatientController : ControllerBase
         var query = @"SELECT user_id AS UserId, 
                              name AS Name, 
                              surname AS Surname, 
-                             birth_date AS BirthDate
+                             birth_date AS BirthDate,
+                             null as Email,
+                             null as Password,
+                             null as Status
                       FROM dbo.Patient 
-                      WHERE patient_id = @PatientId";
+                      WHERE user_id = @UserId";
 
         var patient = await dbContext.Database
-            .SqlQueryRaw<PatientModel>(query,  new SqlParameter("@PatientId", id))
+            .SqlQueryRaw<PatientModel>(query,  new SqlParameter("@UserId", id))
             .AsNoTracking()
             .FirstOrDefaultAsync();
             

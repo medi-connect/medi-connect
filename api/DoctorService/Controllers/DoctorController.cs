@@ -22,10 +22,24 @@ public class DoctorController: ControllerBase
     }
     
     [HttpGet("getDoctor/{id}")]
-    public async Task<DoctorModel?> GetDoctor([FromRoute] string id)
+    public async Task<DoctorModel?> GetDoctor([FromRoute] int id)
     {
-        var record = await dbContext.Doctor.FindAsync(id);
-        return record;
+        var query = @"SELECT user_id AS UserId, 
+                             name AS Name, 
+                             surname AS Surname, 
+                             speciality AS Speciality,
+                             null as Email,
+                             null as Password,
+                             null as Status
+                      FROM dbo.Doctor 
+                      WHERE user_id = @UserId";
+
+        var doctor = await dbContext.Database
+            .SqlQueryRaw<DoctorModel>(query,  new SqlParameter("@UserId", id))
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+            
+        return doctor;
     }
 
     [HttpPost("register")]
