@@ -1,4 +1,5 @@
 namespace AppointmentService.Models;
+using AppointmentService.Enums;
 
 public class AppointmentModel
 {
@@ -7,7 +8,7 @@ public class AppointmentModel
     public DateTime? EndTime { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public string Status { get; set; } = "Pending";
+    public AppointmentStatus Status { get; set; } = AppointmentStatus.PENDING;
     public int DoctorId { get; set; }
     public int PatientId { get; set; }
     public bool CreatedBy { get; set; } // False for Patient, True for Doctor
@@ -15,7 +16,7 @@ public class AppointmentModel
     public DateTime SysCreated { get; set; } = DateTime.Now;
     
     public AppointmentModel() { }
-    public AppointmentModel(int id, DateTime startTime, DateTime? endTime, string title, string? description, string status, int doctorId, int patientId, bool createdBy)
+    public AppointmentModel(int id, DateTime startTime, DateTime? endTime, string title, string? description, AppointmentStatus status, int doctorId, int patientId, bool createdBy)
     {
         Id = id;
         StartTime = startTime;
@@ -29,7 +30,7 @@ public class AppointmentModel
         SysTimestamp = DateTime.Now; // Initialized when created
         SysCreated = DateTime.Now;  // Initialized when created
     }
-    public void UpdateStatus(string newStatus)
+    public void UpdateStatus(AppointmentStatus newStatus)
     {
         Status = newStatus;
         SysTimestamp = DateTime.Now; // Update timestamp when a change occurs
