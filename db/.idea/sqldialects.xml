@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/Appointment.sql" dialect="AZURE" />
+    <file url="file://$PROJECT_DIR$/Constraints.sql" dialect="AZURE" />
+    <file url="file://$PROJECT_DIR$/Doctor.sql" dialect="AZURE" />
+    <file url="file://$PROJECT_DIR$/Feedback.sql" dialect="AZURE" />
+    <file url="file://$PROJECT_DIR$/Patient.sql" dialect="AZURE" />
+    <file url="file://$PROJECT_DIR$/User.sql" dialect="AZURE" />
+    <file url="PROJECT" dialect="AZURE" />
+  </component>
+</project>
