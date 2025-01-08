@@ -32,6 +32,7 @@ public class UserController : ControllerBase
             var result = await userService.GetUserIdAndPasswordByEmailAsync(request.Email);
             var passwordHash = result.Value.password;
             var userId = result.Value.userId;
+            var isDoctor = result.Value.isDoctor;
             if (string.IsNullOrEmpty(passwordHash) || string.IsNullOrEmpty(userId))
             {
                 return BadRequest(new { message = "Invalid username or password." });
@@ -39,7 +40,7 @@ public class UserController : ControllerBase
             
             if (userService.VerifyPassword(request.Password, passwordHash))
             {
-                return Ok(userService.GenerateAuthResponse(request.Email, userId));
+                return Ok(userService.GenerateAuthResponse(request.Email, userId, isDoctor));
             }
             return BadRequest(new { message = "Invalid username or password." });
         }
@@ -58,7 +59,7 @@ public class UserController : ControllerBase
             return BadRequest("User already exists.");
         }
 
-        doctorModel.UserId = await userService.RegisterUserInternal(doctorModel);
+        doctorModel.UserId = await userService.RegisterUserInternal(doctorModel, true);
 
         if (doctorModel.UserId is -1 or null)
         {

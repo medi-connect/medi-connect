@@ -21,11 +21,12 @@ public class UserService
         return dbContext.UserAccount.Any(u => u.Email == email);
     }
     
-    public async Task<int?> RegisterUserInternal(UserModel userModel)
+    public async Task<int?> RegisterUserInternal(UserModel userModel, bool isDoctor = false)
     {
         var hashedPassword = BCrypt.Net.BCrypt.HashPassword(userModel.Password);
         userModel.Password = hashedPassword;
-        userModel.Status = (short)UserStatusEnum.ACTIVE;
+        userModel.Status = (byte)UserStatusEnum.ACTIVE;
+        userModel.IsDoctor = isDoctor ? (byte?)1 : (byte?)0;
         try
         {
             dbContext.UserAccount.Add(userModel);
@@ -40,29 +41,29 @@ public class UserService
         }
     }
     
-    public async Task<(string userId, string password)?> GetUserIdAndPasswordByEmailAsync(string email)
+    public async Task<(string userId, string password, bool isDoctor)?> GetUserIdAndPasswordByEmailAsync(string email)
     {
         
 
         var result = await dbContext.UserAccount
             .Where(u => u.Email == email) // Filter by email
-            .Select(u => new { u.UserId, u.Password }) // Select only userId and password
+            .Select(u => new { u.UserId, u.Password, u.IsDoctor }) // Select only userId and password
             .FirstOrDefaultAsync(); // Fetch first matching record
-
-        return result == null ? null : (result.UserId.ToString(), result.Password);
+            
+        return result == null ? null : (result.UserId.ToString(), result.Password, result.IsDoctor == 1);
         
     }
 
-    public AuthResponse GenerateAuthResponse(string email, string userId)
+    public AuthResponse GenerateAuthResponse(string email, string userId, bool isDoctor)
     {
         var expiration = DateTime.UtcNow.AddHours(1);
         var token = GenerateJwtToken(email, userId, expiration);
-
         var authResponse = new AuthResponse
         {
             Token = token,
             UserId = userId,
-            Expiration = expiration
+            Expiration = expiration,
+            IsDoctor = isDoctor
         };
         
         return authResponse;
@@ -72,7 +73,7 @@ public class UserService
     {
         return BCrypt.Net.BCrypt.Verify(inputPassword, storedHash);
     }
-
+    
     private string GenerateJwtToken(string email, string userId, DateTime expiration)
     {
         var claims = new List<Claim>

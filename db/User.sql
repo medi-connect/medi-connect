@@ -5,6 +5,7 @@ CREATE TABLE dbo.UserAccount
     email         NVARCHAR (255) NOT NULL UNIQUE,
     password      NVARCHAR (255) NOT NULL,
     status        TINYINT NOT NULL,
+    is_doctor     TINYINT NOT NULL,
     sys_timestamp DATETIME DEFAULT GETDATE(),
     sys_created   DATETIME DEFAULT GETDATE()
 );

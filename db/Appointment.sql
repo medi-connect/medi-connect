@@ -27,9 +27,7 @@ BEGIN
              INNER JOIN inserted i ON e.appointment_id = i.appointment_id;
 END;
 
-ALTER TABLE dbo.Appointment
-ADD CONSTRAINT CK_Appointment_Status
-CHECK (status IN (0,1,2,3));
+
 
 
 
