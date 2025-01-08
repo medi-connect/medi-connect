@@ -8,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
-        builder.AllowAnyOrigin()
+    options.AddPolicy("FrontendPolicy", builder =>
+        builder.WithOrigins("http://localhost:5555") // Replace with your frontend URL(s)
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
@@ -45,6 +45,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseCors("AllowAll");
+app.UseCors("FrontendPolicy");
 
 app.Run();

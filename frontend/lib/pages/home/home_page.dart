@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/appointment_model.dart';
 import 'package:frontend/services/appointment_api.dart';
+import 'package:frontend/services/user_api.dart';
 import 'dart:developer';
 import '../../widgets/appointment_card.dart';
 
@@ -49,21 +50,27 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchAppointments() async {
     try {
-      var response = await AppointmentApi().fetchAppointmentsForDoctor("1008");// hardcoded just for now, todo:change
-      print(response["appointments"].toString());
-      log(response.toString());
+      // var response = await AppointmentApi().fetchAppointmentsForDoctor("1008");// hardcoded just for now, todo:change
+      // print(response["appointments"].toString());
+      // log(response.toString());
+      
+      var responseLogin = await UserApi().login("newtest@medi.com", "komputer123");
 
-      if (response["status"] == 200) {
-        final List<dynamic> jsonAppointments = response["appointments"];
-        setState(() {
-          appointments = jsonAppointments
-              .map((json) => AppointmentModel.fromJson(json))
-              .toList();
-          isLoading = false;
-        });
+      log(responseLogin.toString());
+
+      if (responseLogin["status"] == 200) {
+        log("OKAY");
+        // final List<dynamic> jsonAppointments = response["appointments"];
+        // setState(() {
+        //   appointments = jsonAppointments
+        //       .map((json) => AppointmentModel.fromJson(json))
+        //       .toList();
+        //   isLoading = false;
+        // });
       } else {
         setState(() => isLoading = false);
-        print("Error fetching appointments: ${response["message"]}");
+        print("NOT OKAY");
+        print("Error fetching appointments: ${responseLogin["message"]}");
       }
     } catch (error) {
       setState(() => isLoading = false);
