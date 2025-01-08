@@ -19,15 +19,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(e => e.Password).HasColumnName("password");
             entity.Property(e => e.Status).HasColumnName("status");
         });
-
-        modelBuilder.Entity<PatientModel>(entity =>
-        {
-            entity.ToTable("Patient", "dbo"); // Derived table
-            entity.Property(e => e.Name).HasColumnName("name");
-            entity.Property(e => e.Surname).HasColumnName("surname");
-            entity.Property(e => e.BirthDate).HasColumnName("birth_date");
-
-        });
     }
 
 }
