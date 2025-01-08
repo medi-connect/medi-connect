@@ -16,6 +16,10 @@ ALTER TABLE dbo.Appointment
     ADD CONSTRAINT FK_Appointment_Patient FOREIGN KEY (patient_id)
         REFERENCES dbo.Patient(user_id);
 
+ALTER TABLE dbo.Appointment
+    ADD CONSTRAINT CK_Appointment_Status
+        CHECK (status IN (0,1,2,3));
+
 -- Feedback
 ALTER TABLE dbo.Feedback
     ADD CONSTRAINT FK_Feedback_Appointment FOREIGN KEY (appointment_id)
