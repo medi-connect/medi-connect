@@ -1,16 +1,16 @@
 ﻿import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:developer';
-class AppointmentApi {
+class AppointmentAPI {
   final String _baseUrl = "localhost:8004";
 
-  static final AppointmentApi _instance = AppointmentApi._internal();
+  static final AppointmentAPI _instance = AppointmentAPI._internal();
 
-  factory AppointmentApi() {
+  factory AppointmentAPI() {
     return _instance;
   }
 
-  AppointmentApi._internal();
+  AppointmentAPI._internal();
 
   Future<Map<String, dynamic>> fetchAppointmentsForPatient(String patientId) async {
     try{

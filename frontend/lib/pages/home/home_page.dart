@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/appointment_model.dart';
-import 'package:frontend/services/appointment_api.dart';
-import 'package:frontend/services/user_api.dart';
-import 'dart:developer';
-import '../../widgets/appointment_card.dart';
+import 'package:frontend/widgets/navigation_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -12,69 +9,33 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List<AppointmentModel> appointments = [];
-  //patient, doctor / user
   bool isLoading = true;
+
 
   @override
   void initState() {
     super.initState();
-    fetchAppointments();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("My Appointments")),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : appointments.isEmpty
-          ? const Center(child: Text("No appointments found"))
-          : ListView.builder(
-        itemCount: appointments.length,
-        itemBuilder: (context, index) {
-          final appointment = appointments[index];
-          return AppointmentCard(
-            patientName: 'Patient ID: ${appointment.patientId}',
-            doctorName: 'Doctor ID: ${appointment.doctorId}',
-            appointmentDate: appointment.startTime,
-            status: appointment.status.toShortString(),
-            // onCancel: () => handleCancel(appointment),
-            // onConfirm: () => handleConfirm(appointment),
-          );
-        },
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          NavigationBarWidget(
+            toLogin: _toLogin,
+          ),
+        ],
       ),
     );
   }
 
-  Future<void> fetchAppointments() async {
-    try {
-      // var response = await AppointmentApi().fetchAppointmentsForDoctor("1008");// hardcoded just for now, todo:change
-      // print(response["appointments"].toString());
-      // log(response.toString());
-      
-      var responseLogin = await UserApi().login("newtest@medi.com", "komputer123");
-
-      log(responseLogin.toString());
-
-      if (responseLogin["status"] == 200) {
-        log("OKAY");
-        // final List<dynamic> jsonAppointments = response["appointments"];
-        // setState(() {
-        //   appointments = jsonAppointments
-        //       .map((json) => AppointmentModel.fromJson(json))
-        //       .toList();
-        //   isLoading = false;
-        // });
-      } else {
-        setState(() => isLoading = false);
-        print("NOT OKAY");
-        print("Error fetching appointments: ${responseLogin["message"]}");
-      }
-    } catch (error) {
-      setState(() => isLoading = false);
-      print("Error fetching appointments: $error");
-    }
+  Future<void> _toLogin() async {
+      final result = await Navigator.of(context).pushNamed('/login');
+      print(result.toString());
   }
 }

@@ -59,7 +59,8 @@ public class DoctorController: ControllerBase
                              speciality AS Speciality,
                              null as Email,
                              null as Password,
-                             null as Status
+                             null as Status,
+                             null as IsDoctor
                       FROM dbo.Doctor 
                       WHERE user_id = @UserId";
 
