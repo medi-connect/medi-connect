@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class NavigationBarWidget extends StatefulWidget {
-  const NavigationBarWidget({Key? key, required this.toLogin}) : super(key: key);
+  const NavigationBarWidget({Key? key, required this.toLogin, required this.toRegister}) : super(key: key);
 
   final VoidCallback toLogin;
+  final VoidCallback toRegister;
   @override
   State<NavigationBarWidget> createState() => _NavigationBarWidgetState();
 }
@@ -41,7 +42,7 @@ class _NavigationBarWidgetState extends State<NavigationBarWidget>
                 tooltip: "About us",
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () => widget.toRegister(),
                 icon: Icon(Icons.app_registration),
                 tooltip: "Register",
               ),

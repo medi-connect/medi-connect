@@ -3,6 +3,7 @@ import 'package:form_field_validator/form_field_validator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:frontend/models/patient_model.dart';
 import 'package:frontend/services/doctor_api.dart';
+import '../../models/doctor_model.dart';
 import '../../services/patient_api.dart';
 import '../../services/user_api.dart';
 
@@ -91,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                       hint: "Enter your password",
                       icon: Icons.key_sharp,
                       validator: MultiValidator([
-                        RequiredValidator(errorText: "Last name is required"),
+                        RequiredValidator(errorText: "Password is required"),
                         MinLengthValidator(3,
                             errorText: "Minimum 3 characters"),
                       ]),
@@ -158,10 +159,9 @@ class _LoginPageState extends State<LoginPage> {
     var getDoctor = await DoctorAPI().get(id);
     switch (getDoctor["status"]){
       case 200:
-        DateTime birthDate = DateTime.parse(getDoctor["response"]["birthDate"].toString());
 
-        final patient = PatientModel(
-          birthDate,
+        final patient = DoctorModel(
+          getDoctor["response"]["speciality"] ?? "none",
           id: getDoctor["response"]["userId"] ?? getDoctor["response"]["userId"] ?? "none",
           email: _userData["email"] != null ? _userData["email"]! : "none",
           name: getDoctor["response"]["name"] ?? getDoctor["response"]["name"] ?? "none",

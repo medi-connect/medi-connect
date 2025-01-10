@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:sqlserver://medi-connect-server.database.windows.net:1433;database=mediconnect-db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="mediconnect-db@medi-connect-server.database.windows.net" uuid="9b47d24a-5259-4657-aa41-ed9e09a9cb50">
+      <driver-ref>azure.ms</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
+      <jdbc-url>jdbc:sqlserver://medi-connect-server.database.windows.net:1433;database=mediconnect-db</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

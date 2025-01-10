@@ -28,6 +28,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         children: [
           NavigationBarWidget(
             toLogin: _toLogin,
+            toRegister: _toRegister,
           ),
         ],
       ),
@@ -37,5 +38,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> _toLogin() async {
       final result = await Navigator.of(context).pushNamed('/login');
       print(result.toString());
+  }
+
+  Future<void> _toRegister() async {
+    final result = await Navigator.of(context).pushNamed('/register');
+    print(result.toString());
   }
 }
