@@ -66,8 +66,43 @@ class PatientAPI {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
+
+      print(url);
+
       final decodedBody = jsonDecode(response.body);
 
+      if (response.statusCode == 200) {
+        return {
+          "status": response.statusCode,
+          "response": decodedBody,
+        };
+      }
+      return {
+        "status": response.statusCode,
+        "message": "Something went wrong, status code: ${response.statusCode}."
+      };
+    } catch (e) {
+      return {
+        "status": 400,
+        "message": "Exception occurred: $e",
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> getAll() async {
+    try {
+      var url = Uri.http(_baseUrl, 'api/v1/patient/getAllPatients');
+
+      var response = await http.get(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      final decodedBody = jsonDecode(response.body);
+
+      print(url);
       if (response.statusCode == 200) {
         return {
           "status": response.statusCode,

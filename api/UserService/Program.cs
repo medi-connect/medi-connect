@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", builder =>
-        builder.WithOrigins("http://localhost:5555") // Replace with your frontend URL(s)
+        builder.WithOrigins("http://localhost:5555")
             .AllowAnyMethod()
             .AllowAnyHeader());
 });

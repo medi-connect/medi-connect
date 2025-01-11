@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/models/enums/UserType.dart';
+import 'package:frontend/pages/appointments/appointment_create_page.dart';
 import 'package:frontend/pages/home/home_page.dart';
 import 'package:frontend/pages/home/login_page.dart';
 import 'package:frontend/pages/home/registration_page.dart';
@@ -21,10 +23,26 @@ class MediConnect extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
-      routes: {
-        '/': (context) => HomePage(),
-        "/register": (context) => RegistrationPage(),
-        "/login": (context) => LoginPage(),
+      onGenerateRoute: (settings) {
+        // Define routes and pass arguments dynamically
+        if (settings.name == '/appointment_create') {
+          final userType = settings.arguments as UserType;
+          return MaterialPageRoute(
+            builder: (context) => AppointmentCreatePage(userType: userType),
+          );
+        }
+
+        // Default static routes
+        switch (settings.name) {
+          case '/':
+            return MaterialPageRoute(builder: (context) => HomePage());
+          case '/register':
+            return MaterialPageRoute(builder: (context) => RegistrationPage());
+          case '/login':
+            return MaterialPageRoute(builder: (context) => LoginPage());
+          default:
+            return null;
+        }
       },
     );
   }

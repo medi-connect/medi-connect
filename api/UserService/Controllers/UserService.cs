@@ -56,8 +56,7 @@ public class UserService
 
     public AuthResponse GenerateAuthResponse(string email, string userId, bool isDoctor)
     {
-        var expiration = DateTime.UtcNow.AddHours(1);
-        var expiration = DateTime.ToLo
+        var expiration = DateTime.UtcNow.AddHours(2);
         var token = GenerateJwtToken(email, userId, expiration);
         var authResponse = new AuthResponse
         {

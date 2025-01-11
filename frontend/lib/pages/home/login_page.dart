@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -98,6 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                             errorText: "Minimum 3 characters"),
                       ]),
                       onSaved: (value) => _userData["password"] = value ?? "",
+                      isObscure: true,
                     ),
                     const SizedBox(height: 20),
                     Row(children: [
@@ -144,10 +147,17 @@ class _LoginPageState extends State<LoginPage> {
       if (userLogin["response"]["token"] != null && userLogin["response"]["token"].toString().isNotEmpty) {
 
         if (userLogin["response"]["isDoctor"] as bool) {
-          //todo see issue with doctorservice api, GET method specifically
-          await _getDoctor(userLogin["response"]["userId"].toString());
+          await _getDoctor(
+            userLogin["response"]["userId"].toString(),
+            userLogin["response"]["token"].toString(),
+            userLogin["response"]["expiration"].toString(),
+          );
         } else {
-          await _getPatient(userLogin["response"]["userId"].toString());
+          await _getPatient(
+            userLogin["response"]["userId"].toString(),
+            userLogin["response"]["token"].toString(),
+            userLogin["response"]["expiration"].toString(),
+          );
         }
 
       }
@@ -156,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<void> _getDoctor(String id) async {
+  Future<void> _getDoctor(String id, String token, String expiration) async {
     var getDoctor = await DoctorAPI().get(id);
     switch (getDoctor["status"]){
       case 200:
@@ -167,8 +177,8 @@ class _LoginPageState extends State<LoginPage> {
           email: _userData["email"] != null ? _userData["email"]! : "none",
           name: getDoctor["response"]["name"] ?? getDoctor["response"]["name"] ?? "none",
           surname: getDoctor["response"]["surname"] ?? getDoctor["response"]["surname"] ?? "none",
-          token: getDoctor["response"]["token"] ?? getDoctor["response"]["token"] ?? "none",
-          tokenExpiration: getDoctor["response"]["expiration"] ?? getDoctor["response"]["expiration"] ?? "none"
+          token: token,
+          tokenExpiration: expiration,
         );
         if (context.mounted) {
           Navigator.pop(context, doctor);
@@ -180,7 +190,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<void> _getPatient(String id) async {
+  Future<void> _getPatient(String id, String token, String expiration) async {
     var getPatient = await PatientAPI().get(id);
     switch (getPatient["status"]){
       case 200:
@@ -192,8 +202,8 @@ class _LoginPageState extends State<LoginPage> {
           email: _userData["email"] != null ? _userData["email"]! : "none",
           name: getPatient["response"]["name"] ?? getPatient["response"]["name"] ?? "none",
           surname: getPatient["response"]["surname"] ?? getPatient["response"]["surname"] ?? "none",
-          token: getPatient["response"]["token"] ?? getPatient["response"]["token"] ?? "none",
-          tokenExpiration: getPatient["response"]["expiration"] ?? getPatient["response"]["expiration"] ?? "none"
+          token: token,
+          tokenExpiration: expiration,
         );
         if (context.mounted) {
           Navigator.pop(context, patient);

@@ -17,6 +17,32 @@ public class PatientController : ControllerBase
         this.dbContext = dbContext;
         this.userService = userService;
     }
+    [HttpGet("getAllPatients")]
+    public async Task<List<PatientModel>> GetAllPatients()
+    {
+        var query = @"SELECT user_id AS UserId, 
+                             name AS Name, 
+                             surname AS Surname, 
+                             birth_date AS BirthDate,
+                             null as Email,
+                             null as Password,
+                             null as Status,
+                             null as IsDoctor
+                      FROM dbo.Patient;";
+
+        try
+        {
+            var patients = await dbContext.Database
+                .SqlQueryRaw<PatientModel>(query)
+                .ToListAsync();
+
+            return patients;
+        }
+        catch
+        {
+            return new List<PatientModel>();
+        }
+    }
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] PatientModel patientModel)
     {

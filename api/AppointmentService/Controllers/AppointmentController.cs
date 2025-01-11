@@ -18,8 +18,8 @@ public class AppointmentController: ControllerBase
         this.httpClient = httpClient;
     }
     
-    [HttpPost("addAppointment")]
-    public async Task<ActionResult> AddAppointment([FromBody] AppointmentModel appointment)
+    [HttpPost("createAppointment")]
+    public async Task<ActionResult> CreateAppointment([FromBody] AppointmentModel appointment)
     {
         if (await dbContext.Appointment.AnyAsync(a => a.Id == appointment.Id))
             return BadRequest("Appointment with the given ID already exists.");

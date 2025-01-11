@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 
+import '../user_account.dart';
+
 class NavigationBarWidget extends StatefulWidget {
-  const NavigationBarWidget({Key? key, required this.toLogin, required this.toRegister}) : super(key: key);
+  const NavigationBarWidget(
+      {Key? key,
+      required this.toLogin,
+      required this.toRegister,
+      required this.refreshHome})
+      : super(key: key);
 
   final VoidCallback toLogin;
   final VoidCallback toRegister;
+  final VoidCallback refreshHome;
+
   @override
   State<NavigationBarWidget> createState() => _NavigationBarWidgetState();
 }
@@ -50,6 +59,14 @@ class _NavigationBarWidgetState extends State<NavigationBarWidget>
                 onPressed: () => widget.toLogin(),
                 icon: Icon(Icons.login),
                 tooltip: "Login",
+              ),
+              IconButton(
+                onPressed: () => {
+                  UserAccount().logout(),
+                  widget.refreshHome(),
+                },
+                icon: Icon(Icons.logout),
+                tooltip: "Log out",
               ),
               SizedBox(
                 width: 8,

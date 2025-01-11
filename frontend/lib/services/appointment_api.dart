@@ -54,4 +54,56 @@ class AppointmentAPI {
       };
     }
   }
+
+  Future<Map<String, dynamic>> create(
+      String startTime,
+      String endTime,
+      String title,
+      String description,
+      int status,
+      int doctorId,
+      int patientId,
+      bool createdBy,
+      ) async {
+    try {
+      var url = Uri.http(_baseUrl, 'api/v1/appointment/createAppointment');
+
+      var response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          "StartTime": startTime,
+          "EndTime": endTime,
+          "Title": title,
+          "Description": description,
+          "Status": status,
+          "DoctorId": doctorId,
+          "PatientId": patientId,
+          "CreatedBy": false,
+          "SysTimestamp": DateTime.now().toIso8601String().toString(),
+          "SysCreated": DateTime.now().toIso8601String().toString(),
+        }),
+      );
+
+      print(url);
+
+      if (response.statusCode == 200) {
+        return {
+          "status": response.statusCode,
+        };
+      }
+      return {
+        "status": response.statusCode,
+        "message": "Something went wrong, status code: ${response.statusCode}."
+      };
+    } catch (e) {
+      return {
+        "status": 400,
+        "message": "Exception occurred: $e",
+      };
+    }
+  }
+
 }
