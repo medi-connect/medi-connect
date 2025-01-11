@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:frontend/models/enums/UserType.dart';
 import 'package:frontend/models/patient_model.dart';
 import 'package:frontend/services/doctor_api.dart';
 import '../../models/doctor_model.dart';
@@ -160,15 +161,17 @@ class _LoginPageState extends State<LoginPage> {
     switch (getDoctor["status"]){
       case 200:
 
-        final patient = DoctorModel(
+        final doctor = DoctorModel(
           getDoctor["response"]["speciality"] ?? "none",
           id: getDoctor["response"]["userId"] ?? getDoctor["response"]["userId"] ?? "none",
           email: _userData["email"] != null ? _userData["email"]! : "none",
           name: getDoctor["response"]["name"] ?? getDoctor["response"]["name"] ?? "none",
           surname: getDoctor["response"]["surname"] ?? getDoctor["response"]["surname"] ?? "none",
+          token: getDoctor["response"]["token"] ?? getDoctor["response"]["token"] ?? "none",
+          tokenExpiration: getDoctor["response"]["expiration"] ?? getDoctor["response"]["expiration"] ?? "none"
         );
         if (context.mounted) {
-          Navigator.pop(context, patient);
+          Navigator.pop(context, doctor);
         }
         break;
       default:
@@ -189,6 +192,8 @@ class _LoginPageState extends State<LoginPage> {
           email: _userData["email"] != null ? _userData["email"]! : "none",
           name: getPatient["response"]["name"] ?? getPatient["response"]["name"] ?? "none",
           surname: getPatient["response"]["surname"] ?? getPatient["response"]["surname"] ?? "none",
+          token: getPatient["response"]["token"] ?? getPatient["response"]["token"] ?? "none",
+          tokenExpiration: getPatient["response"]["expiration"] ?? getPatient["response"]["expiration"] ?? "none"
         );
         if (context.mounted) {
           Navigator.pop(context, patient);

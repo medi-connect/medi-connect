@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:developer';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserAPI {
   final String _baseUrl = "localhost:8001";
@@ -68,5 +69,15 @@ class UserAPI {
         "message": "Exception occurred: $e",
       };
     }
+  }
+
+  Future<bool> isTokenValid() async {
+    final prefs = await SharedPreferences.getInstance();
+    final expiration = prefs.getString('token_expiration');
+    if (expiration != null) {
+      final expirationDate = DateTime.parse(expiration);
+      return DateTime.now().isBefore(expirationDate);
+    }
+    return false; // No token or expired token
   }
 }

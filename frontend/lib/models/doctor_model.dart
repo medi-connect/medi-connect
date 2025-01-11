@@ -8,5 +8,7 @@ class DoctorModel extends UserModel{
         required super.email,
         required super.name,
         required super.surname,
+        required super.token,
+        required super.tokenExpiration,
       });
 }
