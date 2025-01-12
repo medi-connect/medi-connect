@@ -89,13 +89,17 @@ jobs:
         run: |
           pwd
           ls -al
-          sed -i "s|<user-service-image>|$DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }}|g" api/UserService/user-service.yaml
-          sed -i "s|<doctor-service-image>|$DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }}|g" api/DoctorService/doctor-service.yaml
-          sed -i "s|<feedback-service-image>|$DOCKER_IMAGE_PREFIX/feedback-service:${{ github.sha }}|g" api/FeedbackService/feedback-service.yaml
-          sed -i "s|<appointment-service-image>|$DOCKER_IMAGE_PREFIX/appointment-service:${{ github.sha }}|g" api/AppointmentService/appointment-service.yaml
+          sed -i "s|<user-service-image>|$DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }}|g" api/UserService/user-deployment.yaml
+          sed -i "s|<doctor-service-image>|$DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }}|g" api/DoctorService/doctor-deployment.yaml
+          sed -i "s|<feedback-service-image>|$DOCKER_IMAGE_PREFIX/feedback-service:${{ github.sha }}|g" api/FeedbackService/feedback-deployment.yaml
+          sed -i "s|<appointment-service-image>|$DOCKER_IMAGE_PREFIX/appointment-service:${{ github.sha }}|g" api/AppointmentService/appointment-deployment.yaml
 
           # Apply the updated YAML files
-          kubectl apply -f api/UserService/user-service.yaml
-          kubectl apply -f api/DoctorService/doctor-service.yaml
-          kubectl apply -f api/FeedbackService/feedback-service.yaml
-          kubectl apply -f api/AppointmentService/appointment-service.yaml
+          kubectl apply -f api/UserService/user-deployment.yaml
+          kubectl apply -f api/DoctorService/doctor-deployment.yaml
+          kubectl apply -f api/FeedbackService/feedback-deployment.yaml
+          kubectl apply -f api/AppointmentService/appointment-deployment.yaml
+          
+          # Apply the ingress and secrets
+          kubectl apply -f api/UserService/microservices-ingress.yaml
+          kubectl apply -f api/UserService/secret.yaml
