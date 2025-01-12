@@ -5,6 +5,7 @@ enum AppointmentStatus {
   confirmed,
   declined,
   canceled,
+  done,
 }
 
 extension AppointmentStatusExtension on AppointmentStatus {
@@ -20,6 +21,8 @@ extension AppointmentStatusExtension on AppointmentStatus {
         return AppointmentStatus.declined;
       case 'CANCELED':
         return AppointmentStatus.canceled;
+      case 'DONE':
+        return AppointmentStatus.done;
       default:
         return AppointmentStatus.pending;
     }

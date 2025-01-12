@@ -86,6 +86,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  flutter_rating_stars:
+    dependency: "direct dev"
+    description:
+      name: flutter_rating_stars
+      sha256: "4a1e52ef3c28ea0b86d638b73bdad9496e33c20feafa6046aa1113437657f711"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   flutter_test:
     dependency: "direct dev"
     description: flutter

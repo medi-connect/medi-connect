@@ -36,10 +36,10 @@ public class FeedbackController : ControllerBase
                              review AS Review, 
                              appointment_id AS AppointmentId
                       FROM dbo.Feedback 
-                      WHERE feedback_id = @FeedbackId";
+                      WHERE appointment_id = @AppointmentId";
 
             var feedback = await dbContext.Database
-                .SqlQueryRaw<FeedbackModel>(query, new SqlParameter("@FeedbackId", id))
+                .SqlQueryRaw<FeedbackModel>(query, new SqlParameter("@AppointmentId", id))
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
 
