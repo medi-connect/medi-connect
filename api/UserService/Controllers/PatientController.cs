@@ -101,8 +101,7 @@ public class PatientController : ControllerBase
                              null as IsDoctor,
                              null as Email,
                              null as Password,
-                             null as Status,
-                             null as IsDoctor
+                             null as Status
                       FROM dbo.Patient 
                       WHERE user_id = @UserId";
 
