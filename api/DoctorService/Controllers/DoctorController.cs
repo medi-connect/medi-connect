@@ -15,10 +15,12 @@ public class DoctorController: ControllerBase
     
     private readonly ApplicationDbContext dbContext;
     private readonly HttpClient httpClient;
-    public DoctorController(ApplicationDbContext dbContext, HttpClient httpClient)
+    private readonly ILogger<DoctorController> _logger;
+    public DoctorController(ApplicationDbContext dbContext, HttpClient httpClient, ILogger<DoctorController> logger)
     {
         this.dbContext = dbContext;
         this.httpClient = httpClient;
+        _logger = logger;
     }
     
     /* =============================
@@ -96,36 +98,52 @@ public class DoctorController: ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult> RegisterDoctor([FromBody] DoctorModel? doctor)
     {
-        // As all Microservices are for themselves, we create record in the user table in the User MS
-        const string url = "http://localhost:8001/api/v1/user/registerDoctor";
+        if (doctor == null)
+        {
+            _logger.LogWarning("Doctor information is missing or invalid.");
+            return BadRequest("Doctor information is missing or invalid.");
+        }
+
+        const string url = "http://user-service:8001/api/v1/user/registerDoctor";
         var content = new StringContent(JsonSerializer.Serialize(doctor), Encoding.UTF8, "application/json");
+
         try
         {
-            if (doctor == null)
-            {
-                return BadRequest("Insufficient information.");
-            }
+            _logger.LogInformation("Calling user-service to register doctor at URL: {Url}", url);
+
             var response = await httpClient.PostAsync(url, content);
-            response.EnsureSuccessStatusCode();
-            
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorDetails = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Failed to call user-service. StatusCode: {StatusCode}, Response: {Response}",
+                    response.StatusCode, errorDetails);
+                return StatusCode((int)response.StatusCode, errorDetails);
+            }
+
             var responseString = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true // Allows JSON property names to be case-insensitive
             };
+            _logger.LogInformation("Received response from user-service: {Response}", responseString);
             var doctorModel = JsonSerializer.Deserialize<DoctorModel>(responseString, options);
+
             if (doctorModel?.UserId == null)
             {
-                return BadRequest("Failed to obtain userId.");
+                _logger.LogWarning("UserId is null in the response from user-service.");
+                return BadRequest("Failed to obtain userId from user-service.");
             }
 
             return await RegisterDoctorInternal(doctorModel);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "An error occurred during doctor registration.");
             return StatusCode(500, ex.Message);
-        } 
+        }
     }
+
     /* =============================
      * PUT METHODS
      =============================*/ 
@@ -178,6 +196,6 @@ public class DoctorController: ControllerBase
         {
              StatusCode(500, ex.Message);
         }
-        return StatusCode(200);
+        return StatusCode(200, "Registration successful");
     }
 }
