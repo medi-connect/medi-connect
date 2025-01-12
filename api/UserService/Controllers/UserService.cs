@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using UserService.Enum;
 using UserService.Models;
+using UserService.Utils;
 
 namespace UserService.Controllers;
 

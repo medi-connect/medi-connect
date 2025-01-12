@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using UserService.Models;
+using UserService.Utils;
 
 namespace UserService.Controllers;
 

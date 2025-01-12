@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using UserService.Utils;
 
 namespace UserService.Controllers;
 

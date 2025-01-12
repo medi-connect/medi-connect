@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UserService.Models;
 
-namespace UserService.Controllers;
+namespace UserService.Utils;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
