@@ -37,7 +37,7 @@ jobs:
       - name: Set up Kubernetes kubeconfig
         run: |
           echo "Decoding KUBECONFIG_FILE..."
-          echo "${{ secrets.KUBECONFIG_FILE }}" | base64 -d > kubeconfig.yaml
+          echo "${{ secrets.KUBECONFIG_FILE }}" > kubeconfig.yaml
           export KUBECONFIG=$(pwd)/kubeconfig.yaml
 
       # Step 4: Verify Kubernetes Connection
