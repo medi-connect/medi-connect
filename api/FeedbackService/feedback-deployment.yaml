@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: feedback-service
-          image: srebrovn/feedback-service:v1.2
+          image: srebrovn/feedback-service:latest
           imagePullPolicy: Always
           env:
             - name: ASPNETCORE_URLS

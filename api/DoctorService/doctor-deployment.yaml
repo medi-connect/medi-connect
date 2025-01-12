@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: doctor-service
-          image: srebrovn/doctor-service:v1.10
+          image: srebrovn/doctor-service:latest
           imagePullPolicy: Always
           env:
             - name: ASPNETCORE_URLS

@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: appointment-service
-          image: srebrovn/appointment-service:v1.2
+          image: srebrovn/appointment-service:latest
           imagePullPolicy: Always
           env:
             - name: ASPNETCORE_URLS
