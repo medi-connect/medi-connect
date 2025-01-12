@@ -102,4 +102,3 @@ jobs:
           
           # Apply the ingress and secrets
           kubectl apply -f api/UserService/microservices-ingress.yaml
-          kubectl apply -f api/UserService/secret.yaml
