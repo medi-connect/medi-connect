@@ -87,6 +87,8 @@ jobs:
         env:
           KUBECONFIG: ${{ github.workspace }}/kubeconfig.yaml
         run: |
+          pwd
+          ls -al
           sed -i "s|<user-service-image>|$DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }}|g" api/UserService/user-service.yaml
           sed -i "s|<doctor-service-image>|$DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }}|g" api/DoctorService/doctor-service.yaml
           sed -i "s|<feedback-service-image>|$DOCKER_IMAGE_PREFIX/feedback-service:${{ github.sha }}|g" api/FeedbackService/feedback-service.yaml
