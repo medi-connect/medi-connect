@@ -61,13 +61,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /health/liveness
-              port: 80
+              port: 8001
             initialDelaySeconds: 10
             periodSeconds: 15
 
           readinessProbe:
             httpGet:
               path: /health/db
-              port: 80
+              port: 8001
             initialDelaySeconds: 5
             periodSeconds: 10
