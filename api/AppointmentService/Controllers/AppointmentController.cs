@@ -1,7 +1,10 @@
+using AppointmentService.Enums;
 using AppointmentService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AppointmentService.Utils;
+using Microsoft.Data.SqlClient;
+
 
 namespace AppointmentService.Controllers;
 
@@ -89,21 +92,46 @@ public class AppointmentController: ControllerBase
 
         return Ok(appointments);
     }
-    //TODO: FOR FIX.
-    /*[HttpPut("modifyStatus/{id}")]
+    [HttpPut("modifyStatus/{id}")]
     public async Task<ActionResult> ModifyStatus(int id, [FromBody] StatusDTO updateDto)
     {
         if (updateDto == null || !Enum.IsDefined(typeof(AppointmentStatus), updateDto.Status))
             return BadRequest("Invalid or missing status.");
 
-        var appointment = await dbContext.Appointment.FindAsync(id);
-        if (appointment == null)
+        var affectedRows = await dbContext.Database.ExecuteSqlRawAsync(
+            "UPDATE dbo.Appointment SET status = {0} WHERE appointment_id = {1}",
+            updateDto.Status,
+            id);
+
+        if (affectedRows == 0)
             return NotFound("Appointment not found.");
 
-        appointment.Status = updateDto.Status;
-        dbContext.Appointment.Update(appointment);
-        await dbContext.SaveChangesAsync();
-
         return Ok($"Appointment status updated to '{updateDto.Status}'.");
-    }*/
+    }
+
+    [HttpPut("modifyDescription/{id}")]
+    public async Task<ActionResult> ModifyDescription(int id, [FromBody] DescriptionDTO descriptionDto)
+    {
+        if (descriptionDto == null || string.IsNullOrWhiteSpace(descriptionDto.Description))
+            return BadRequest("Invalid or missing description.");
+
+        const string query = @"
+        UPDATE dbo.Appointment SET description = @description WHERE appointment_id = @id;";
+
+        try
+        {
+            await dbContext.Database.ExecuteSqlRawAsync(
+                query,
+                new SqlParameter("@description", descriptionDto.Description),
+                new SqlParameter("@id", id)
+            );
+
+            return Ok("Description updated successfully.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
 }

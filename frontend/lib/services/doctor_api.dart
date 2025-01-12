@@ -63,14 +63,13 @@ class DoctorAPI {
     try {
       var url = Uri.http(_baseUrl, 'api/v1/doctor/getDoctor/$id');
 
+      print(url);
       var response = await http.get(
         url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-
-      print(url);
 
       final decodedBody = jsonDecode(response.body);
 

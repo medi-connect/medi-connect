@@ -52,7 +52,12 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
           height: 16,
         ),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushNamed(context, "/appointments_page", arguments: {
+              "userType": UserType.DOCTOR,
+              "userId": UserAccount().doctor!.id,
+            });
+          },
           child: Text("View all"),
         ),
       ],

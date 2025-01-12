@@ -1,20 +1,22 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/appointment_model.dart';
 import 'package:frontend/services/appointment_api.dart';
-import 'package:frontend/services/user_api.dart';
-import 'dart:developer';
+import '../../models/enums/UserType.dart';
 import '../../widgets/appointment_card.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class AppointmentsPage extends StatefulWidget {
+  const AppointmentsPage({Key? key, required this.userType, required this.userId}) : super(key: key);
 
+  final UserType userType;
+  final int userId;
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<AppointmentsPage> createState() => _AppointmentsPageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  List<AppointmentModel> appointments = [];
-  //patient, doctor / user
+class _AppointmentsPageState extends State<AppointmentsPage> {
+  List<AppointmentModel> _appointments = [];
   bool isLoading = true;
 
   @override
@@ -26,55 +28,103 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("My Appointments")),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : appointments.isEmpty
-          ? const Center(child: Text("No appointments found"))
-          : ListView.builder(
-        itemCount: appointments.length,
-        itemBuilder: (context, index) {
-          final appointment = appointments[index];
-          return AppointmentCard(
-            patientName: 'Patient ID: ${appointment.patientId}',
-            doctorName: 'Doctor ID: ${appointment.doctorId}',
-            appointmentDate: appointment.startTime,
-            status: appointment.status.toShortString(),
-            // onCancel: () => handleCancel(appointment),
-            // onConfirm: () => handleConfirm(appointment),
-          );
-        },
-      ),
+        appBar: AppBar(title: const Text("My Appointments")),
+        body: FutureBuilder<void>(
+          future: widget.userType == UserType.PATIENT
+              ? _fetchPatientAppointments()
+              : _fetchDoctorAppointments(),
+          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return Container(
+                child: ListView.builder(
+                  itemCount: _appointments.length,
+                  itemBuilder: (context, index) {
+                    final appointment = _appointments[index];
+                    return AppointmentCard(
+                      appointment: appointment,
+                      userType: widget.userType,
+                      // onCancel: () => handleCancel(appointment),
+                      // onConfirm: () => handleConfirm(appointment),
+                    );
+                  },
+                ),
+              );
+            } else {
+              return CupertinoActivityIndicator();
+            }
+          },
+        )
     );
   }
 
-  Future<void> fetchAppointments() async {
-    try {
-      // var response = await AppointmentApi().fetchAppointmentsForDoctor("1008");// hardcoded just for now, todo:change
-      // print(response["appointments"].toString());
-      // log(response.toString());
+  Future<void> _fetchPatientAppointments() async {
+    _appointments.clear();
 
-      var responseLogin = await UserAPI().login("newtest@medi.com", "komputer123");
+    final response = await AppointmentAPI().fetchAppointmentsForPatient(widget.userId.toString());
 
-      log(responseLogin.toString());
+    if (response["status"] as int == 200) {
+      for (final appointment in response["response"]) {
+        DateTime startTime = DateTime.parse(appointment["startTime"].toString());
+        DateTime endTime = DateTime.parse(appointment["endTime"].toString());
+        DateTime sysTimestamp = DateTime.parse(appointment["sysTimestamp"].toString());
+        DateTime sysCreated = DateTime.parse(appointment["sysCreated"].toString());
 
-      if (responseLogin["status"] == 200) {
-        log("OKAY");
-        // final List<dynamic> jsonAppointments = response["appointments"];
-        // setState(() {
-        //   appointments = jsonAppointments
-        //       .map((json) => AppointmentModel.fromJson(json))
-        //       .toList();
-        //   isLoading = false;
-        // });
-      } else {
-        setState(() => isLoading = false);
-        print("NOT OKAY");
-        print("Error fetching appointments: ${responseLogin["message"]}");
+        late AppointmentStatus status = AppointmentStatusExtension.fromString(appointment["status"].toString());
+
+        final appointmentModel = AppointmentModel(
+          id: appointment["id"],
+          startTime: startTime,
+          endTime: endTime,
+          title: appointment["title"] ?? "none",
+          description: appointment["title"] ?? "none",
+          status: status,
+          doctorId: appointment["doctorId"] ?? "none",
+          patientId: appointment["patientId"] ?? "none",
+          createdBy: appointment["createdBy"] as bool,
+          sysTimestamp: sysTimestamp,
+          sysCreated: sysCreated,
+        );
+        _appointments.add(appointmentModel);
       }
-    } catch (error) {
-      setState(() => isLoading = false);
-      print("Error fetching appointments: $error");
+    } else {
+      print(response["message"]);
+      Fluttertoast.showToast(msg: response["message"]);
+    }
+  }
+
+  Future<void> _fetchDoctorAppointments() async {
+    _appointments.clear();
+
+    final response = await AppointmentAPI().fetchAppointmentsForDoctor(widget.userId.toString());
+
+    if (response["status"] as int == 200) {
+
+      for (final appointment in response["response"]) {
+        DateTime startTime = DateTime.parse(appointment["startTime"].toString());
+        DateTime endTime = DateTime.parse(appointment["endTime"].toString());
+        DateTime sysTimestamp = DateTime.parse(appointment["sysTimestamp"].toString());
+        DateTime sysCreated = DateTime.parse(appointment["sysCreated"].toString());
+
+        late AppointmentStatus status = AppointmentStatusExtension.fromString(appointment["status"].toString());
+
+        final appointmentModel = AppointmentModel(
+          id: appointment["id"],
+          startTime: startTime,
+          endTime: endTime,
+          title: appointment["title"] ?? "none",
+          description: appointment["description"] ?? "none",
+          status: status,
+          doctorId: appointment["doctorId"] ?? "none",
+          patientId: appointment["patientId"] ?? "none",
+          createdBy: appointment["createdBy"] as bool,
+          sysTimestamp: sysTimestamp,
+          sysCreated: sysCreated,
+        );
+        _appointments.add(appointmentModel);
+      }
+    } else {
+      print(response["message"]);
+      Fluttertoast.showToast(msg: response["message"]);
     }
   }
 }
