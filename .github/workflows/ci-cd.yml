@@ -6,8 +6,8 @@ on:
       - main
 
 env:
-  DOCKER_IMAGE_PREFIX: srebrovn 
-  KUBE_NAMESPACE: default                      
+  DOCKER_IMAGE_PREFIX: srebrovn
+  KUBE_NAMESPACE: default
 
 jobs:
   build-and-push:
@@ -28,7 +28,9 @@ jobs:
 
       - name: UserService
         run: |
-          cd UserService
+          pwd
+          ls -al
+          cd api/UserService
           docker build -t $DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }} .
           docker tag $DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }} $DOCKER_IMAGE_PREFIX/user-service:latest
           docker push $DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }}
@@ -36,7 +38,7 @@ jobs:
 
       - name: DoctorService
         run: |
-          cd DoctorService
+          cd api/DoctorService
           docker build -t $DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }} .
           docker tag $DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }} $DOCKER_IMAGE_PREFIX/doctor-service:latest
           docker push $DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }}
@@ -44,7 +46,7 @@ jobs:
 
       - name: FeedbackService
         run: |
-          cd FeedbackService
+          cd api/FeedbackService
           docker build -t $DOCKER_IMAGE_PREFIX/feedback-service:${{ github.sha }} .
           docker tag $DOCKER_IMAGE_PREFIX/feedback-service:${{ github.sha }} $DOCKER_IMAGE_PREFIX/feedback-service:latest
           docker push $DOCKER_IMAGE_PREFIX/feedback-service:${{ github.sha }}
@@ -52,7 +54,7 @@ jobs:
 
       - name: AppointmentService
         run: |
-          cd AppointmentService
+          cd api/AppointmentService
           docker build -t $DOCKER_IMAGE_PREFIX/appointment-service:${{ github.sha }} .
           docker tag $DOCKER_IMAGE_PREFIX/appointment-service:${{ github.sha }} $DOCKER_IMAGE_PREFIX/appointment-service:latest
           docker push $DOCKER_IMAGE_PREFIX/appointment-service:${{ github.sha }}
@@ -82,6 +84,8 @@ jobs:
 
       # Update Kubernetes YAML files and apply
       - name: Deploy to Kubernetes
+        env:
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig.yaml
         run: |
           sed -i "s|<user-service-image>|$DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }}|g" UserService/user-service.yaml
           sed -i "s|<doctor-service-image>|$DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }}|g" DoctorService/doctor-service.yaml
