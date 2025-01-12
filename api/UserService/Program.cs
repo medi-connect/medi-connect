@@ -6,13 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using UserService.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("FrontendPolicy", builder =>
-        builder.WithOrigins("http://localhost:5555")
-            .AllowAnyMethod()
-            .AllowAnyHeader());
-});
 Env.Load();
 
 // Add services to the container.
@@ -67,7 +60,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseCors("FrontendPolicy");
 
 app.Run();
