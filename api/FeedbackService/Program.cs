@@ -1,4 +1,5 @@
 using DotNetEnv;
+using FeedbackService.Utils;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,7 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 builder.Services.AddControllers();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -23,7 +25,7 @@ builder.Services.AddCors(options =>
 });
 var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
                    ?? throw new InvalidOperationException("DB_CONNECTION_STRING is not set.");
-builder.Services.AddDbContext<DbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(dbConnString));
 
 builder.Services.AddHttpClient();

@@ -2,9 +2,8 @@ namespace FeedbackService.Models;
 
 public class FeedbackModel
 {
-    public int Id { get; set; }
-    public string Title { get; set; }
-    public string Content { get; set; }
-    public int Rating { get; set; }
-    
+    public int? FeedbackId { get; set; }
+    public byte? Rate { get; set; }
+    public string? Review { get; set; }
+    public int? AppointmentId { get; set; }
 }
