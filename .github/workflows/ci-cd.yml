@@ -28,10 +28,8 @@ jobs:
 
       - name: UserService
         run: |
-          pwd
-          ls -al
           cd api/UserService
-          docker build -t $DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }} .
+          docker buildx build --platform linux/amd64,linux/arm64 -t $DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }} .
           docker tag $DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }} $DOCKER_IMAGE_PREFIX/user-service:latest
           docker push $DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }}
           docker push $DOCKER_IMAGE_PREFIX/user-service:latest
@@ -39,7 +37,7 @@ jobs:
       - name: DoctorService
         run: |
           cd api/DoctorService
-          docker build -t $DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }} .
+          docker buildx build --platform linux/amd64,linux/arm64 -t $DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }} .
           docker tag $DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }} $DOCKER_IMAGE_PREFIX/doctor-service:latest
           docker push $DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }}
           docker push $DOCKER_IMAGE_PREFIX/doctor-service:latest
@@ -47,7 +45,7 @@ jobs:
       - name: FeedbackService
         run: |
           cd api/FeedbackService
-          docker build -t $DOCKER_IMAGE_PREFIX/feedback-service:${{ github.sha }} .
+          docker buildx build --platform linux/amd64,linux/arm64 -t $DOCKER_IMAGE_PREFIX/feedback-service:${{ github.sha }} .
           docker tag $DOCKER_IMAGE_PREFIX/feedback-service:${{ github.sha }} $DOCKER_IMAGE_PREFIX/feedback-service:latest
           docker push $DOCKER_IMAGE_PREFIX/feedback-service:${{ github.sha }}
           docker push $DOCKER_IMAGE_PREFIX/feedback-service:latest
@@ -55,7 +53,7 @@ jobs:
       - name: AppointmentService
         run: |
           cd api/AppointmentService
-          docker build -t $DOCKER_IMAGE_PREFIX/appointment-service:${{ github.sha }} .
+          docker buildx build --platform linux/amd64,linux/arm64 -t $DOCKER_IMAGE_PREFIX/appointment-service:${{ github.sha }} .
           docker tag $DOCKER_IMAGE_PREFIX/appointment-service:${{ github.sha }} $DOCKER_IMAGE_PREFIX/appointment-service:latest
           docker push $DOCKER_IMAGE_PREFIX/appointment-service:${{ github.sha }}
           docker push $DOCKER_IMAGE_PREFIX/appointment-service:latest
@@ -87,8 +85,6 @@ jobs:
         env:
           KUBECONFIG: ${{ github.workspace }}/kubeconfig.yaml
         run: |
-          pwd
-          ls -al
           sed -i "s|<user-service-image>|$DOCKER_IMAGE_PREFIX/user-service:${{ github.sha }}|g" api/UserService/user-deployment.yaml
           sed -i "s|<doctor-service-image>|$DOCKER_IMAGE_PREFIX/doctor-service:${{ github.sha }}|g" api/DoctorService/doctor-deployment.yaml
           sed -i "s|<feedback-service-image>|$DOCKER_IMAGE_PREFIX/feedback-service:${{ github.sha }}|g" api/FeedbackService/feedback-deployment.yaml
