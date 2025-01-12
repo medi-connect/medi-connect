@@ -91,9 +91,13 @@ jobs:
           sed -i "s|<appointment-service-image>|$DOCKER_IMAGE_PREFIX/appointment-service:${{ github.sha }}|g" api/AppointmentService/appointment-deployment.yaml
 
           # Apply the updated YAML files
+          kubectl delete -f api/UserService/user-deployment.yaml
           kubectl apply -f api/UserService/user-deployment.yaml
+          kubectl delete -f api/DoctorService/doctor-deployment.yaml
           kubectl apply -f api/DoctorService/doctor-deployment.yaml
+          kubectl delete -f api/FeedbackService/feedback-deployment.yaml
           kubectl apply -f api/FeedbackService/feedback-deployment.yaml
+          kubectl delete -f api/AppointmentService/appointment-deployment.yaml
           kubectl apply -f api/AppointmentService/appointment-deployment.yaml
           
           # Apply the ingress and secrets
