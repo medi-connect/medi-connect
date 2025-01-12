@@ -13,8 +13,10 @@ foreach (var kv in Environment.GetEnvironmentVariables(EnvironmentVariableTarget
 // Add services to the container.
 
 builder.Services.AddControllers();
+var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
+                   ?? throw new InvalidOperationException("DB_CONNECTION_STRING is not set.");
 builder.Services.AddDbContext<DbContext>(options =>
-    options.UseSqlServer(builder.Configuration["DB_CONNECTION_STRING"]));
+    options.UseSqlServer(dbConnString));
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
