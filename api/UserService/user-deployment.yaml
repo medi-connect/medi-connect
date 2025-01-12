@@ -58,3 +58,16 @@ spec:
                   key: DB_CONNECTION_STRING
           ports:
             - containerPort: 8001
+          livenessProbe:
+            httpGet:
+              path: /health/liveness
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
+
+          readinessProbe:
+            httpGet:
+              path: /health/db
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10

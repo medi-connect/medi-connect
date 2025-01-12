@@ -1,6 +1,7 @@
 using System.Text;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using UserService.Controllers;
@@ -26,10 +27,16 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
+
 var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
                 ?? throw new InvalidOperationException("DB_CONNECTION_STRING is not set.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(dbConnString));
+
+builder.Services.AddHealthChecks()
+    .AddCheck<DbHealthCheck>("db_health_check", tags: ["db_health_check"]);
+builder.Services.AddHealthChecks()
+    .AddCheck<LivenessHealthCheck>("liveness_health_check", tags: ["liveness_health_check"]);
 
 var jwtIssuer = Environment.GetEnvironmentVariable("JWT_TOKEN_ISSUER") 
                 ?? throw new InvalidOperationException("JWT_TOKEN_ISSUER is not set.");
@@ -57,9 +64,16 @@ builder.Services.AddAuthentication(config =>
 });
 
 var app = builder.Build();
-
 // Configure the HTTP request pipeline.
-
+app.UseHealthChecks("/health");
+app.UseHealthChecks("/health/db", new HealthCheckOptions()
+{
+    Predicate = (check) => check.Tags.Contains("db_health_check"),
+});
+app.UseHealthChecks("/health/liveness", new HealthCheckOptions()
+{
+    Predicate = (check) => check.Tags.Contains("liveness_health_check"),
+});
 // app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();
