@@ -52,7 +52,12 @@ class _PatientDashboardState extends State<PatientDashboard> {
           height: 16,
         ),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushNamed(context, "/appointments_page", arguments: {
+              "userType": UserType.PATIENT,
+              "userId": UserAccount().patient!.id,
+            });
+          },
           child: Text("View all"),
         ),
       ],

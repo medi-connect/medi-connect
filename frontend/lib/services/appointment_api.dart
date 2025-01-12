@@ -14,14 +14,20 @@ class AppointmentAPI {
 
   Future<Map<String, dynamic>> fetchAppointmentsForPatient(String patientId) async {
     try{
-      var url = Uri.https(_baseUrl, 'api/v1/appointment/getAppointmentsForPatient/$patientId');
-
+      var url = Uri.http(_baseUrl, 'api/v1/appointment/getAppointmentsForPatient/$patientId');
       var response = await http.get(url);
 
       final decodedBody = jsonDecode(response.body);
+      print(url);
+      if (response.statusCode == 200) {
+        return {
+          "status": response.statusCode,
+          "response": decodedBody,
+        };
+      }
       return {
         "status": response.statusCode,
-        "appointments": decodedBody,
+        "message": "Something went wrong, status code: ${response.statusCode}."
       };
     } catch (e) {
       print("EXCEPTION CAUGHT: $e");
@@ -40,7 +46,7 @@ class AppointmentAPI {
       if (response.statusCode == 200) {
         return {
           "status": response.statusCode,
-          "appointments": decodedBody,
+          "response": decodedBody,
         };
       }
       return {
@@ -106,4 +112,63 @@ class AppointmentAPI {
     }
   }
 
+  Future<Map<String, dynamic>> modifyStatus(int id, String status) async {
+    try{
+      var url = Uri.http(_baseUrl, 'api/v1/appointment/modifyStatus/$id');
+      var response = await http.put(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          "status": status,
+        }),
+      );
+      print(url);
+      if (response.statusCode == 200) {
+        return {
+          "status": response.statusCode,
+        };
+      }
+      return {
+        "status": response.statusCode,
+        "message": "Something went wrong, status code: ${response.statusCode}."
+      };
+    } catch (e) {
+      return {
+        "status": 400,
+        "message": "Exception occurred",
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> modifyDescription(int id, String description) async {
+    try{
+      var url = Uri.http(_baseUrl, 'api/v1/appointment/modifyDescription/$id');
+      var response = await http.put(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          "description": description,
+        }),
+      );
+      print(url);
+      if (response.statusCode == 200) {
+        return {
+          "status": response.statusCode,
+        };
+      }
+      return {
+        "status": response.statusCode,
+        "message": "Something went wrong, status code: ${response.statusCode}."
+      };
+    } catch (e) {
+      return {
+        "status": 400,
+        "message": "Exception occurred",
+      };
+    }
+  }
 }

@@ -128,9 +128,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       final prefs = await SharedPreferences.getInstance();
       final isDoctor = prefs.getBool('is_doctor');
       if (!isDoctor!) {
-        await UserAccount().getPatient();
+        final patient = await UserAccount().getPatientUser();
+        if (patient!=null) UserAccount().patient = patient;
       } else {
-        await UserAccount().getDoctor();
+        final doctor = await UserAccount().getDoctorUser();
+        if (doctor!=null) UserAccount().doctor = doctor;
       }
     }
     else {

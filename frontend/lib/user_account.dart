@@ -35,7 +35,7 @@ class UserAccount {
     return doctor == null && patient == null;
   }
 
-  Future<void> getPatient() async {
+  Future<PatientModel?> getPatientUser() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id');
     var getPatient = await PatientAPI().get(userId.toString());
@@ -57,15 +57,14 @@ class UserAccount {
           tokenExpiration: expiration!,
         );
 
-        this.patient = patient;
-        break;
+        return patient;
       default:
         print(getPatient["message"]);
-        break;
+        return null;
     }
   }
 
-  Future<void> getDoctor() async {
+  Future<DoctorModel?> getDoctorUser() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id');
     var getDoctor = await DoctorAPI().get(userId.toString());
@@ -85,11 +84,54 @@ class UserAccount {
           tokenExpiration: expiration!,
         );
 
-        this.doctor = doctor;
-        break;
+        return doctor;
       default:
         print(getDoctor["message"]);
-        break;
+        return null;
+    }
+  }
+
+  Future<PatientModel?> getPatient(String id) async {
+    var getPatient = await PatientAPI().get(id);
+    switch (getPatient["status"]){
+      case 200:
+        DateTime birthDate = DateTime.parse(getPatient["response"]["birthDate"].toString());
+
+        final patient = PatientModel(
+          birthDate,
+          id: getPatient["response"]["userId"] ?? getPatient["response"]["userId"] ?? "none",
+          email: "none",
+          name: getPatient["response"]["name"] ?? getPatient["response"]["name"] ?? "none",
+          surname: getPatient["response"]["surname"] ?? getPatient["response"]["surname"] ?? "none",
+          token: "none",
+          tokenExpiration: "none",
+        );
+
+        return patient;
+      default:
+        print(getPatient["message"]);
+        return null;
+    }
+  }
+
+  Future<DoctorModel?> getDoctor(String id) async {
+    var getDoctor = await DoctorAPI().get(id);
+    switch (getDoctor["status"]){
+      case 200:
+        final doctor = DoctorModel(
+          getDoctor["response"]["speciality"] ?? getDoctor["response"]["speciality"] ?? "none",
+          id: getDoctor["response"]["userId"] ?? getDoctor["response"]["userId"] ?? "none",
+          email: "none",
+          name: getDoctor["response"]["name"] ?? getDoctor["response"]["name"] ?? "none",
+          surname: getDoctor["response"]["surname"] ?? getDoctor["response"]["surname"] ?? "none",
+          token: "none",
+          tokenExpiration: "none",
+        );
+
+        return doctor;
+      default:
+        print(getDoctor["message"]);
+        return null;
     }
   }
 }

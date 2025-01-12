@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/enums/UserType.dart';
 import 'package:frontend/pages/appointments/appointment_create_page.dart';
+import 'package:frontend/pages/appointments/appointments_page.dart';
 import 'package:frontend/pages/home/home_page.dart';
 import 'package:frontend/pages/home/login_page.dart';
 import 'package:frontend/pages/home/registration_page.dart';
@@ -29,6 +30,13 @@ class MediConnect extends StatelessWidget {
           final userType = settings.arguments as UserType;
           return MaterialPageRoute(
             builder: (context) => AppointmentCreatePage(userType: userType),
+          );
+        } else if (settings.name == '/appointments_page') {
+          final arguments = settings.arguments as Map<String, dynamic>;
+          final userType = arguments["userType"] as UserType;
+          final userId = arguments["userId"] as int;
+          return MaterialPageRoute(
+            builder: (context) => AppointmentsPage(userType: userType, userId: userId)
           );
         }
 
