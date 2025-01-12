@@ -1,10 +1,11 @@
 using AppointmentService.Enums;
+using System.Net;
 using AppointmentService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AppointmentService.Utils;
 using Microsoft.Data.SqlClient;
-
+using Microsoft.IdentityModel.Tokens;
 
 namespace AppointmentService.Controllers;
 
@@ -27,13 +28,13 @@ public class AppointmentController: ControllerBase
         if (await dbContext.Appointment.AnyAsync(a => a.Id == appointment.Id))
             return BadRequest("Appointment with the given ID already exists.");
 
-        /*var doctorExists = await CheckIfDoctorExists(appointment.DoctorId);
+        var doctorExists = await CheckIfDoctorExists(appointment.DoctorId);
         if (!doctorExists)
             return NotFound("Doctor not found.");
-
+        
         var patientExists = await CheckIfPatientExists(appointment.PatientId);
         if (!patientExists)
-            return NotFound("Patient not found.");*/
+            return NotFound("Patient not found.");
 
         dbContext.Appointment.Add(appointment);
         await dbContext.SaveChangesAsync();
@@ -134,4 +135,47 @@ public class AppointmentController: ControllerBase
         }
     }
 
+    [HttpPost("checkDoctor/{doctorId}")]
+    public async Task<bool> CheckIfDoctorExists(int doctorId)
+    {
+        try
+        {
+            var url = $"http://doctor-service:8003/api/v1/doctor/getDoctor/{doctorId}";
+            var response = await httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.NoContent)
+            {
+                return false;
+            }
+
+            var exists = await response.Content.ReadAsStringAsync();
+            return !exists.IsNullOrEmpty();
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+    
+    [HttpPost("checkPatient/{patientId}")]
+    public async Task<bool> CheckIfPatientExists(int patientId)
+    {
+        try
+        {
+            var url = $"http://user-service:8001/api/v1/patient/getPatient/{patientId}";
+            var response = await httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.NoContent)
+            {
+                return false;
+            }
+
+            var exists = await response.Content.ReadAsStringAsync();
+            return !exists.IsNullOrEmpty();
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
 }

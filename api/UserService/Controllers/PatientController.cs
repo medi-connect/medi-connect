@@ -100,8 +100,7 @@ public class PatientController : ControllerBase
                              birth_date AS BirthDate,
                              null as Email,
                              null as Password,
-                             null as Status,
-                             null as IsDoctor
+                             null as Status
                       FROM dbo.Patient 
                       WHERE user_id = @UserId";
 
