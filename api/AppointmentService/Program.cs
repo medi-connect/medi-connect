@@ -30,8 +30,10 @@ builder.Services.AddControllers()
     });
 //builder.Services.AddDbContext<DbContext>(options =>
 //    options.UseSqlServer(builder.Configuration["DB_CONNECTION_STRING"]));
+var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
+                   ?? throw new InvalidOperationException("DB_CONNECTION_STRING is not set.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")));
+    options.UseSqlServer(dbConnString));
 builder.Services.AddHttpClient();
 
 builder.Configuration.AddEnvironmentVariables();

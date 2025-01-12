@@ -20,6 +20,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(e => e.Status).HasColumnName("status");
             entity.Property(e => e.IsDoctor).HasColumnName("is_doctor");
         });
+        
     }
 
 }

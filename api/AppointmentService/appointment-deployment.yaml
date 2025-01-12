@@ -10,7 +10,7 @@ spec:
   ports:
     - protocol: TCP
       port: 8004
-  type: LoadBalancer
+  type: ClusterIP
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -30,7 +30,15 @@ spec:
     spec:
       containers:
         - name: appointment-service
-          image: srebrovn/appointment-service:v1.1.1
+          image: srebrovn/appointment-service:v1.2
           imagePullPolicy: Always
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://+:8004"  # Bind to port 8004
+            - name: DB_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DB_CONNECTION_STRING
           ports:
             - containerPort: 8004

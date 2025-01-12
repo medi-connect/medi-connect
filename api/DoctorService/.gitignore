@@ -5,6 +5,7 @@
 
 # dotenv files
 .env
+secret.yaml
 
 # User-specific files
 *.rsuser

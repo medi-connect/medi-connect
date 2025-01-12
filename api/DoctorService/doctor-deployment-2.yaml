@@ -10,7 +10,7 @@ spec:
   ports:
     - protocol: TCP
       port: 8003
-  type: LoadBalancer
+  type: ClusterIP
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -30,7 +30,15 @@ spec:
     spec:
       containers:
         - name: doctor-service
-          image: srebrovn/doctor-service:v1.1.2
+          image: srebrovn/doctor-service:v1.10
           imagePullPolicy: Always
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://+:8003"  # Bind to port 8003
+            - name: DB_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DB_CONNECTION_STRING
           ports:
             - containerPort: 8003
