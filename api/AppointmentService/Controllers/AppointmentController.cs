@@ -109,8 +109,7 @@ public class AppointmentController: ControllerBase
         return Ok($"Appointment status updated to '{updateDto.Status}'.");
     }*/
 
-    [HttpPost("checkDoctor/{doctorId}")]
-    public async Task<bool> CheckIfDoctorExists(int doctorId)
+    private async Task<bool> CheckIfDoctorExists(int doctorId)
     {
         try
         {
@@ -131,8 +130,7 @@ public class AppointmentController: ControllerBase
         }
     }
     
-    [HttpPost("checkPatient/{patientId}")]
-    public async Task<bool> CheckIfPatientExists(int patientId)
+    private async Task<bool> CheckIfPatientExists(int patientId)
     {
         try
         {
