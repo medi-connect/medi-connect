@@ -71,6 +71,7 @@ public class PatientController : ControllerBase
                              name AS Name, 
                              surname AS Surname, 
                              birth_date AS BirthDate,
+                             null as IsDoctor,
                              null as Email,
                              null as Password,
                              null as Status
