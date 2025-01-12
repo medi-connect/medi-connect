@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: microservices-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2  # Rewrite path to remove /user-service prefix
+    nginx.ingress.kubernetes.io/use-regex: "true"   # Enable regex to allow advanced paths
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /user-service(/|$)(.*)  # Match requests starting with /user-service and capture subpaths
+            pathType: ImplementationSpecific  # Required for regex
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 8001
+          - path: /feedback-service(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: feedback-service
+                port:
+                  number: 8002
+          - path: /doctor-service(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: doctor-service
+                port:
+                  number: 8003
+          - path: /appointment-service(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: appointment-service
+                port:
+                  number: 8004

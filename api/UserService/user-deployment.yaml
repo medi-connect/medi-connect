@@ -10,7 +10,8 @@ spec:
   ports:
     - protocol: TCP
       port: 8001
-  type: LoadBalancer
+      targetPort: 8001
+  type: ClusterIP
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -30,7 +31,30 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: srebrovn/user-service:v1.1.2
+          image: srebrovn/user-service:v1.11
           imagePullPolicy: Always
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://+:8001"  # Bind to port 8001
+            - name: JWT_TOKEN_ISSUER
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: JWT_TOKEN_ISSUER
+            - name: JWT_AUDIENCE
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: JWT_AUDIENCE
+            - name: JWT_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: JWT_SIGNING_KEY
+            - name: DB_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DB_CONNECTION_STRING
           ports:
             - containerPort: 8001
