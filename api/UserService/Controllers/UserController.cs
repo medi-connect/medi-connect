@@ -13,6 +13,14 @@ public class UserController : ControllerBase
     {
         this.userService = userService;
     }
+    
+        
+    [HttpGet("testCICD")]
+    public async Task<IActionResult> TestCICD()
+    {
+        
+        return Ok("Uspesen test nova metoda je aktivna pozz");
+    }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
