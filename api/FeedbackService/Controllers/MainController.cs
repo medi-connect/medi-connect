@@ -5,7 +5,7 @@ namespace FeedbackService.Controllers;
 
 [ApiController]
 [Route("/api/v1/[controller]")]
-public class FeedbackController : ControllerBase
+public class MainController : ControllerBase
 {
     [HttpGet("getFeedback")]
     public FeedbackModel GetFeedback()
@@ -18,4 +18,6 @@ public class FeedbackController : ControllerBase
             Rating = 9
         };
     }
+    
+    
 }
