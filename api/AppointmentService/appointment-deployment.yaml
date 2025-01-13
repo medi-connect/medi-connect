@@ -40,5 +40,10 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: DB_CONNECTION_STRING
+            - name: APPOINTMENT_FUNCTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: APPOINTMENT_FUNCTION_KEY
           ports:
             - containerPort: 8004
