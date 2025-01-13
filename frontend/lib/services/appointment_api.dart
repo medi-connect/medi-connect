@@ -2,7 +2,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:developer';
 class AppointmentAPI {
-  final String _baseUrl = "localhost:8004";
+  final String _baseUrl = "72.144.116.77";
 
   static final AppointmentAPI _instance = AppointmentAPI._internal();
 
@@ -14,7 +14,7 @@ class AppointmentAPI {
 
   Future<Map<String, dynamic>> fetchAppointmentsForPatient(String patientId) async {
     try{
-      var url = Uri.http(_baseUrl, 'api/v1/appointment/getAppointmentsForPatient/$patientId');
+      var url = Uri.http(_baseUrl, 'appointment-service/api/v1/appointment/getAppointmentsForPatient/$patientId');
       var response = await http.get(url);
 
       final decodedBody = jsonDecode(response.body);
@@ -40,7 +40,7 @@ class AppointmentAPI {
 
   Future<Map<String, dynamic>> fetchAppointmentsForDoctor(String doctorId) async {
     try{
-      var url = Uri.http(_baseUrl, 'api/v1/appointment/getAppointmentsForDoctor/$doctorId');
+      var url = Uri.http(_baseUrl, 'appointment-service/api/v1/appointment/getAppointmentsForDoctor/$doctorId');
       var response = await http.get(url);
       final decodedBody = jsonDecode(response.body);
       if (response.statusCode == 200) {
@@ -72,7 +72,7 @@ class AppointmentAPI {
       bool createdBy,
       ) async {
     try {
-      var url = Uri.http(_baseUrl, 'api/v1/appointment/createAppointment');
+      var url = Uri.http(_baseUrl, 'appointment-service/api/v1/appointment/createAppointment');
 
       var response = await http.post(
         url,
@@ -114,7 +114,7 @@ class AppointmentAPI {
 
   Future<Map<String, dynamic>> modifyStatus(int id, String status) async {
     try{
-      var url = Uri.http(_baseUrl, 'api/v1/appointment/modifyStatus/$id');
+      var url = Uri.http(_baseUrl, 'appointment-service/api/v1/appointment/modifyStatus/$id');
       var response = await http.put(
         url,
         headers: <String, String>{
@@ -144,7 +144,7 @@ class AppointmentAPI {
 
   Future<Map<String, dynamic>> modifyDescription(int id, String description) async {
     try{
-      var url = Uri.http(_baseUrl, 'api/v1/appointment/modifyDescription/$id');
+      var url = Uri.http(_baseUrl, 'appointment-service/api/v1/appointment/modifyDescription/$id');
       var response = await http.put(
         url,
         headers: <String, String>{

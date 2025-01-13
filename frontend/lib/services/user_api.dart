@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserAPI {
-  final String _baseUrl = "localhost:8001";
+  final String _baseUrl = "72.144.116.77";
 
   static final UserAPI _instance = UserAPI._internal();
 
@@ -38,8 +38,9 @@ class UserAPI {
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      var url = Uri.http(_baseUrl, 'api/v1/user/login');
+      var url = Uri.http(_baseUrl, 'user-service/api/v1/user/login');
 
+      print(url);
       var response = await http.post(
         url,
         headers: <String, String>{
@@ -64,6 +65,7 @@ class UserAPI {
         "message": "Something went wrong, status code: ${response.statusCode}."
       };
     } catch (e) {
+      print(e);
       return {
         "status": 400,
         "message": "Exception occurred: $e",

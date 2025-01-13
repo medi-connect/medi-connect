@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:developer';
 class FeedbackAPI {
-  final String _baseUrl = "localhost:8002";
+  final String _baseUrl = "72.144.116.77";
 
   static final FeedbackAPI _instance = FeedbackAPI._internal();
 
@@ -14,7 +14,7 @@ class FeedbackAPI {
 
   Future<Map<String, dynamic>> getFeedbackForAppointment(int appointmentId) async {
     try{
-      var url = Uri.http(_baseUrl, 'api/v1/feedback/getFeedback/$appointmentId');
+      var url = Uri.http(_baseUrl, 'feedback-service/api/v1/feedback/getFeedback/$appointmentId');
       var response = await http.get(url);
 
       final decodedBody = jsonDecode(response.body);
@@ -44,7 +44,7 @@ class FeedbackAPI {
       int appointmentId,
       ) async {
     try {
-      var url = Uri.http(_baseUrl, 'api/v1/feedback/addFeedback');
+      var url = Uri.http(_baseUrl, 'feedback-service/api/v1/feedback/addFeedback');
 
       var response = await http.post(
         url,

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:developer';
 
 class DoctorAPI {
-  final String _baseUrl = "localhost:8003";
+  final String _baseUrl = "72.144.116.77";
 
   static final DoctorAPI _instance = DoctorAPI._internal();
 
@@ -21,7 +21,7 @@ class DoctorAPI {
     String surname,
   ) async {
     try {
-      var url = Uri.http(_baseUrl, 'api/v1/doctor/register');
+      var url = Uri.http(_baseUrl, 'doctor-service/api/v1/doctor/register');
 
       var response = await http.post(
         url,
@@ -61,7 +61,7 @@ class DoctorAPI {
 
   Future<Map<String, dynamic>> get(String id) async {
     try {
-      var url = Uri.http(_baseUrl, 'api/v1/doctor/getDoctor/$id');
+      var url = Uri.http(_baseUrl, 'doctor-service/api/v1/doctor/getDoctor/$id');
 
       print(url);
       var response = await http.get(
@@ -93,7 +93,7 @@ class DoctorAPI {
 
   Future<Map<String, dynamic>> getAll() async {
     try {
-      var url = Uri.http(_baseUrl, 'api/v1/doctor/getAllDoctors');
+      var url = Uri.http(_baseUrl, 'doctor-service/api/v1/doctor/getAllDoctors');
 
       var response = await http.get(
         url,
