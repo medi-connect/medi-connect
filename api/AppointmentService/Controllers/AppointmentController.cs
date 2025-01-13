@@ -1,5 +1,7 @@
 using AppointmentService.Enums;
 using System.Net;
+using System.Text;
+using System.Text.Json;
 using AppointmentService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -38,19 +40,17 @@ public class AppointmentController: ControllerBase
 
         dbContext.Appointment.Add(appointment);
         await dbContext.SaveChangesAsync();
-
+        await NotifyFunctionApp(new EmailAppointmentModel
+        {
+            Id = appointment.Id,
+            StartTime = appointment.StartTime,
+            Title = appointment.Title,
+            Description = appointment.Description
+        });
+        
         return Ok("Appointment added successfully.");
     }
-    // TODO: connect these with dbcontext of Patient/Doctor (usage in addAppointment - function above)
-    /*private async Task<bool> CheckIfDoctorExists(int doctorId)
-    {
-        return await dbContext.Appointment.AnyAsync(a => a.DoctorId == doctorId);
-    }
 
-    private async Task<bool> CheckIfPatientExists(int patientId)
-    {
-        return await dbContext.Appointment.AnyAsync(a => a.PatientId == patientId);
-    }*/
     [HttpGet("getAppointment/{id}")]
     public async Task<ActionResult<AppointmentModel>> GetAppointment(int id)
     {
@@ -111,7 +111,7 @@ public class AppointmentController: ControllerBase
     }
 
     [HttpPut("modifyDescription/{id}")]
-    public async Task<ActionResult> ModifyDescription(int id, [FromBody] DescriptionDTO descriptionDto)
+    public async Task<ActionResult> ModifyDescription(int id, [FromBody] DescriptionDTO? descriptionDto)
     {
         if (descriptionDto == null || string.IsNullOrWhiteSpace(descriptionDto.Description))
             return BadRequest("Invalid or missing description.");
@@ -175,5 +175,21 @@ public class AppointmentController: ControllerBase
         {
             return false;
         }
+    }
+    
+    [HttpPost("sendEmail")]
+    public async Task<bool> NotifyFunctionApp([FromBody] EmailAppointmentModel appointment)
+    {
+        var httpClient = new HttpClient();
+        var key = Environment.GetEnvironmentVariable("APPOINTMENT_FUNCTION_KEY");
+        var functionUrl = $"http://SendAppointmentEmail.azurewebsites.net/api/SendAppointmentEmail?code={key}";
+        var jsonPayload = JsonSerializer.Serialize(appointment);
+
+        // Create an HttpContent object (StringContent) with the JSON payload
+        var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+        // Send POST request
+        var response = await httpClient.PostAsync(functionUrl, content);
+        return response.IsSuccessStatusCode;
     }
 }
