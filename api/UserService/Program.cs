@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using UserService.Controllers;
+using UserService.HealthChecks;
 using UserService.Utils;
 
 var builder = WebApplication.CreateBuilder(args);

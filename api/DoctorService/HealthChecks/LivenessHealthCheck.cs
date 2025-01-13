@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace UserService.HealthChecks;
+namespace DoctorService.HealthChecks;
 
 public class LivenessHealthCheck : IHealthCheck
 {

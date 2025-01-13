@@ -1,5 +1,7 @@
 using DotNetEnv;
+using FeedbackService.HealthChecks;
 using FeedbackService.Utils;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +25,11 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
+builder.Services.AddHealthChecks()
+    .AddCheck<DbHealthCheck>("db_health_check", tags: ["db_health_check"]);
+builder.Services.AddHealthChecks()
+    .AddCheck<LivenessHealthCheck>("liveness_health_check", tags: ["liveness_health_check"]);
+
 var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
                    ?? throw new InvalidOperationException("DB_CONNECTION_STRING is not set.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -37,11 +44,18 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 
 // app.UseHttpsRedirection();
+app.UseHealthChecks("/health");
+app.UseHealthChecks("/health/db", new HealthCheckOptions()
+{
+    Predicate = (check) => check.Tags.Contains("db_health_check"),
+});
+app.UseHealthChecks("/health/liveness", new HealthCheckOptions()
+{
+    Predicate = (check) => check.Tags.Contains("liveness_health_check"),
+});
 app.UseCors("AllowAll");
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseCors("FrontendPolicy");
 
 app.Run();
