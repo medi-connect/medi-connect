@@ -1,8 +1,11 @@
+using DoctorService.HealthChecks;
 using DoctorService.Utils;
 using DotNetEnv;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+Env.Load();
 
 builder.Services.AddCors(options =>
 {
@@ -11,9 +14,11 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
-
+builder.Services.AddHealthChecks()
+    .AddCheck<DbHealthCheck>("db_health_check", tags: ["db_health_check"]);
+builder.Services.AddHealthChecks()
+    .AddCheck<LivenessHealthCheck>("liveness_health_check", tags: ["liveness_health_check"]);
 // Add services to the container.
-Env.Load();
 
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
@@ -32,6 +37,15 @@ builder.Services.AddLogging(); // Register logging services
 builder.Configuration.AddEnvironmentVariables();
 
 var app = builder.Build();
+app.UseHealthChecks("/health");
+app.UseHealthChecks("/health/db", new HealthCheckOptions()
+{
+    Predicate = (check) => check.Tags.Contains("db_health_check"),
+});
+app.UseHealthChecks("/health/liveness", new HealthCheckOptions()
+{
+    Predicate = (check) => check.Tags.Contains("liveness_health_check"),
+});
 
 // Configure the HTTP request pipeline.
 

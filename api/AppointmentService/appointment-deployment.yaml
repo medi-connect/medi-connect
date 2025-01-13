@@ -47,3 +47,16 @@ spec:
                   key: APPOINTMENT_FUNCTION_KEY
           ports:
             - containerPort: 8004
+          livenessProbe:
+            httpGet:
+              path: /health/liveness
+              port: 8004
+            initialDelaySeconds: 10
+            periodSeconds: 15
+
+          readinessProbe:
+            httpGet:
+              path: /health/db
+              port: 8004
+            initialDelaySeconds: 5
+            periodSeconds: 10

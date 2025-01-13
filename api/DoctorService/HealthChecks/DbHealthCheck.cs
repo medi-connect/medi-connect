@@ -1,7 +1,7 @@
+using DoctorService.Utils;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using UserService.Utils;
 
-namespace UserService.HealthChecks;
+namespace DoctorService.HealthChecks;
 
 public class DbHealthCheck : IHealthCheck
 {
