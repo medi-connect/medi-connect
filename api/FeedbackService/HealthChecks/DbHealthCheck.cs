@@ -1,7 +1,7 @@
+using FeedbackService.Utils;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using UserService.Utils;
 
-namespace UserService.HealthChecks;
+namespace FeedbackService.HealthChecks;
 
 public class DbHealthCheck : IHealthCheck
 {

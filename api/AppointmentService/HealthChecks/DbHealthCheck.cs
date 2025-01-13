@@ -1,7 +1,7 @@
+using AppointmentService.Utils;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using UserService.Utils;
 
-namespace UserService.HealthChecks;
+namespace AppointmentService.HealthChecks;
 
 public class DbHealthCheck : IHealthCheck
 {
@@ -18,6 +18,7 @@ public class DbHealthCheck : IHealthCheck
             // Testing DB Conn.
             if (await dbContext.Database.CanConnectAsync(cancellationToken))
             {
+                return HealthCheckResult.Healthy();
                 return HealthCheckResult.Healthy();
             }
             return HealthCheckResult.Unhealthy();

@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 using AppointmentService.Utils;
 using System.Text.Json.Serialization;
+using AppointmentService.HealthChecks;
+using DoctorService.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,8 +31,10 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
-//builder.Services.AddDbContext<DbContext>(options =>
-//    options.UseSqlServer(builder.Configuration["DB_CONNECTION_STRING"]));
+builder.Services.AddHealthChecks()
+    .AddCheck<DbHealthCheck>("db_health_check", tags: ["db_health_check"]);
+builder.Services.AddHealthChecks()
+    .AddCheck<LivenessHealthCheck>("liveness_health_check", tags: ["liveness_health_check"]);
 var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
                    ?? throw new InvalidOperationException("DB_CONNECTION_STRING is not set.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -39,6 +44,15 @@ builder.Services.AddHttpClient();
 builder.Configuration.AddEnvironmentVariables();
 var app = builder.Build();
 
+app.UseHealthChecks("/health");
+app.UseHealthChecks("/health/db", new HealthCheckOptions()
+{
+    Predicate = (check) => check.Tags.Contains("db_health_check"),
+});
+app.UseHealthChecks("/health/liveness", new HealthCheckOptions()
+{
+    Predicate = (check) => check.Tags.Contains("liveness_health_check"),
+});
 // Configure the HTTP request pipeline.
 
 // app.UseHttpsRedirection();
