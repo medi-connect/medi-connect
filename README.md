@@ -1,2 +1,4 @@
 # medi-connect
-Applicaiton that connects patients to hospitals, hosted in the cloud
+MediConnect is cloud based solution that connects patients to hospitals.
+For more information feel free to see our documentation: 
+-   1.  [Overview](https://github.com/medi-connect/medi-connect/blob/dev/docs/Documentation.md)
