@@ -29,7 +29,8 @@ builder.Services.AddHealthChecks()
     .AddCheck<DbHealthCheck>("db_health_check", tags: ["db_health_check"]);
 builder.Services.AddHealthChecks()
     .AddCheck<LivenessHealthCheck>("liveness_health_check", tags: ["liveness_health_check"]);
-
+// gRPC
+builder.Services.AddGrpc();
 var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
                    ?? throw new InvalidOperationException("DB_CONNECTION_STRING is not set.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

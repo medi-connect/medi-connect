@@ -1,5 +1,6 @@
 using FeedbackService.Models;
 using FeedbackService.Utils;
+using Grpc.Net.Client;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +55,32 @@ public class FeedbackController : ControllerBase
         {
             return BadRequest(e);
         }
+    }
+    
+    [HttpGet("getFeedbacksForDoneAppointments")]
+    public async Task<ActionResult<List<FeedbackModel>>> GetFeedbackForDoneAppointments()
+    {
+        try
+        {
+            using var channel = GrpcChannel.ForAddress("http://appointment-service:8004");
+            var client = new DoneAppointmentsService.DoneAppointmentsServiceClient(channel);
+            var request = new AppointmentRequest();
+
+            var response = client.GetDoneAppointments(request);
+            var appointments = response.Appointments.ToList();
+            var appointmentsIds = appointments.Select(appt => appt.Id).ToList();
+
+            var feedbacks = await dbContext.Feedback
+                .Where(feedback => appointmentsIds.Contains((int)feedback.AppointmentId))
+                .ToListAsync();
+            return Ok(feedbacks);
+
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e);   
+        }
+        
     }
     
     /* =============================
