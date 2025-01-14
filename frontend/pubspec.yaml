@@ -18,9 +18,12 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-  fluttertoast: 8.2.5
-  shared_preferences: 2.2.3
-  flutter_rating_stars: 1.0.3
+#  fluttertoast: 8.2.5
+  fluttertoast: 8.2.10
+#  shared_preferences: 2.2.3
+  shared_preferences: 2.3.5
+#  flutter_rating_stars: 1.0.3
+  flutter_rating_stars: 1.1.0
 
 flutter:
   assets:

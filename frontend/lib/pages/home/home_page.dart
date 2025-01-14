@@ -62,12 +62,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ],
                     );
                   }
-                  else
-                    return Center(
-                      child: Text(
-                        "Not logged in",
+                  else{
+                    return Expanded(
+                      child: Center(
+                        child: Text(
+                          "Welcome to Medi-Connect! Proceed to login or create an account.",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 25,
+                          ),
+                        ),
                       ),
                     );
+                  }
                 } else {
                   return const CupertinoActivityIndicator();
                 }
