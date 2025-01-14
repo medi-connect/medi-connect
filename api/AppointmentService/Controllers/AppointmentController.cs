@@ -93,6 +93,20 @@ public class AppointmentController: ControllerBase
 
         return Ok(appointments);
     }
+    
+    [HttpGet("getDoneAppointments")]
+    public async Task<ActionResult<List<AppointmentModel>>> FetDoneAppointments()
+    {
+        var appointments = await dbContext.Appointment
+            .Where(a => a.Status == AppointmentStatus.DONE)
+            .ToListAsync();
+
+        if (!appointments.Any())
+            return NotFound("Appointments in status DONE do not exist.");
+
+        return Ok(appointments);
+    }
+    
     [HttpPut("modifyStatus/{id}")]
     public async Task<ActionResult> ModifyStatus(int id, [FromBody] StatusDTO updateDto)
     {

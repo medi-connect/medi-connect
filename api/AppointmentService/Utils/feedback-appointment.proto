@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+service DoneAppointmentsService {
+  rpc GetDoneAppointments (AppointmentRequest) returns (AppointmentResponse);
+}
+
+message AppointmentRequest {}
+
+message Appointment {
+  int32 id = 1;
+}
+
+message AppointmentResponse {
+  repeated Appointment appointments = 1;
+}

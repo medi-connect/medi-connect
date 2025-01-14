@@ -6,9 +6,11 @@ using AppointmentService.GraphQL.Queries;
 using AppointmentService.GraphQL.Schema;
 using AppointmentService.GraphQL.Types;
 using AppointmentService.HealthChecks;
+using AppointmentService.Services;
 using DoctorService.HealthChecks;
 using GraphQL;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,12 +23,6 @@ builder.Services.AddCors(options =>
 });
 
 Env.Load();
-
-/*foreach (var kv in Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process).Cast<DictionaryEntry>())
-{
-    builder.Configuration[kv.Key.ToString()] = kv.Value?.ToString();
-}*/
-
 // Add services to the container.
 
 builder.Services.AddControllers()
@@ -50,11 +46,18 @@ builder.Services.AddGraphQL(b => b
 builder.Services.AddScoped<MainQuery>();
 builder.Services.AddSingleton<AppointmentSchema>();
 builder.Services.AddSingleton<AppointmentType>();
+// gRPC
+builder.Services.AddGrpc();
 // Database Connection
 var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
                    ?? throw new InvalidOperationException("DB_CONNECTION_STRING is not set.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(dbConnString));
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(8004, o => o.Protocols = HttpProtocols.Http2); // HTTP/2 without HTTPS
+});
 
 builder.Services.AddHttpClient();
 
@@ -74,6 +77,8 @@ app.UseHealthChecks("/health/liveness", new HealthCheckOptions()
 
 // GraphQL routing
 app.MapGraphQL();
+// gRPC
+app.MapGrpcService<DoneAppointmentsServiceImpl>();
 // Configure the HTTP request pipeline.
 
 // app.UseHttpsRedirection();
