@@ -46,11 +46,6 @@ class _NavigationBarWidgetState extends State<NavigationBarWidget>
                 tooltip: "Home",
               ),
               IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.info),
-                tooltip: "About us",
-              ),
-              IconButton(
                 onPressed: () => widget.toRegister(),
                 icon: Icon(Icons.app_registration),
                 tooltip: "Register",

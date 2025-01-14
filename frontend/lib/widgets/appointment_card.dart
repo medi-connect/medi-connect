@@ -240,7 +240,7 @@ class _HomePageState extends State<AppointmentCard>
                                 onPressed: () {
                                   _addFeedback(_feedbackController.text);
                                 },
-                                child: const Text("Update Description"),
+                                child: const Text("Add Feedback"),
                               ),
                             ],
                           )
@@ -329,6 +329,7 @@ class _HomePageState extends State<AppointmentCard>
 
     if (response["status"] == 200) {
       Fluttertoast.showToast(msg: "Feedback added successfully");
+      if (mounted) setState(() {});
     } else {
       print(response["message"]);
       Fluttertoast.showToast(msg: response["message"]);

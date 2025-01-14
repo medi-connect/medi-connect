@@ -38,3 +38,11 @@ spec:
                 name: appointment-service
                 port:
                   number: 8004
+          - path: /mediconnect(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mc-frontend-service
+                port:
+                  number: 5555
+              
