@@ -19,11 +19,10 @@ public class DbHealthCheck : IHealthCheck
             if (await dbContext.Database.CanConnectAsync(cancellationToken))
             {
                 return HealthCheckResult.Healthy();
-                return HealthCheckResult.Healthy();
             }
             return HealthCheckResult.Unhealthy();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return HealthCheckResult.Unhealthy();
         }    
