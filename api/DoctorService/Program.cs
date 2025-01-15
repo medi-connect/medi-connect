@@ -1,3 +1,4 @@
+using System.Reflection;
 using DoctorService.HealthChecks;
 using DoctorService.Utils;
 using DotNetEnv;
@@ -32,6 +33,14 @@ var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
                    ?? throw new InvalidOperationException("DB_CONNECTION_STRING is not set.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(dbConnString));
+
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+});
+
 builder.Services.AddHttpClient();
 builder.Services.AddLogging(); // Register logging services
 builder.Configuration.AddEnvironmentVariables();
@@ -48,6 +57,10 @@ app.UseHealthChecks("/health/liveness", new HealthCheckOptions()
 });
 
 // Configure the HTTP request pipeline.
+
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // app.UseHttpsRedirection();
 app.UseCors("AllowAll");

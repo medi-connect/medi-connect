@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 using AppointmentService.Utils;
@@ -54,6 +55,13 @@ var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(dbConnString));
 
+//Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+});
+
 // builder.WebHost.ConfigureKestrel(options =>
 // {
 //     options.ListenAnyIP(8004, o => o.Protocols = HttpProtocols.Http2); // HTTP/2 without HTTPS
@@ -82,6 +90,10 @@ app.MapGrpcService<DoneAppointmentsServiceImpl>();
 // Configure the HTTP request pipeline.
 
 // app.UseHttpsRedirection();
+
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthorization();
 
