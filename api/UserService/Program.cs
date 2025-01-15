@@ -4,11 +4,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using UserService.Controllers;
 using UserService.HealthChecks;
 using UserService.Utils;
 using Prometheus;
-using System;
 using System.Diagnostics;
 
 
@@ -16,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", builder =>
-        builder.WithOrigins("http://localhost:5555")
+        builder.WithOrigins("http://72.144.116.77/mediconnect")
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
@@ -26,13 +24,13 @@ Env.Load();
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<UserService.Controllers.UserService>();
-builder.Services.AddCors(options =>
+/*builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
         builder.AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
-});
+});*/
 
 var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
                 ?? throw new InvalidOperationException("DB_CONNECTION_STRING is not set.");
@@ -81,7 +79,7 @@ app.UseHealthChecks("/health/liveness", new HealthCheckOptions()
     Predicate = (check) => check.Tags.Contains("liveness_health_check"),
 });
 // app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+//app.UseCors("AllowAll");
 app.UseAuthentication();
 
 app.UseAuthorization();
