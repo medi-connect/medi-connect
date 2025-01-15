@@ -54,10 +54,10 @@ var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(dbConnString));
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(8004, o => o.Protocols = HttpProtocols.Http2); // HTTP/2 without HTTPS
-});
+// builder.WebHost.ConfigureKestrel(options =>
+// {
+//     options.ListenAnyIP(8004, o => o.Protocols = HttpProtocols.Http2); // HTTP/2 without HTTPS
+// });
 
 builder.Services.AddHttpClient();
 
