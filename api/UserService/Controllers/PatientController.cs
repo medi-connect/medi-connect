@@ -18,6 +18,11 @@ public class PatientController : ControllerBase
         this.dbContext = dbContext;
         this.userService = userService;
     }
+    
+    /* =============================
+    * GET METHODS
+    =============================*/ 
+
 
     /// <summary>
     /// Retrieves a list of all patients.
@@ -95,6 +100,11 @@ public class PatientController : ControllerBase
             });
         }
     }
+    
+    /* =============================
+    * POST METHODS
+    =============================*/ 
+
     
     /// <summary>
     /// Registers new patient.
