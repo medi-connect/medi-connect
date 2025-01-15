@@ -84,6 +84,7 @@ public class UserController : ControllerBase
         }
     }
     
+    [NonAction]
     public bool UserExistsStatic(string email)
     {
         return userService.UserExists(email);
