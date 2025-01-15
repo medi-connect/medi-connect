@@ -61,7 +61,7 @@ MediConnect facilitates patient-doctor interactions by providing features such a
 
 *   **Cloud Provider**: Azure
 
-*   **CI/CD Pipeline**: Azure DevOps (or GitHub Actions as an alternative)
+*   **CI/CD Pipeline**: GitHub Actions
 
 
 3\. Architecture
@@ -69,7 +69,7 @@ MediConnect facilitates patient-doctor interactions by providing features such a
 
 MediConnect follows a **microservices architecture** for decoupling the application and quick scaling. Each microservice is self-contained and has its own database schema to adhere to the **database-per-service** principle.
 
-*   **Frontend**: Single-page application (SPA) consuming backend APIs.
+*   **Frontend**: Flutter web application.
 
 *   **Backend**: RESTful APIs exposed by independent microservices.
 
@@ -79,7 +79,7 @@ MediConnect follows a **microservices architecture** for decoupling the applicat
 
     *   **Synchronous communication**: REST APIs (HTTP) are used to communicate between the client/frontend and microservices.
 
-    *   **Asynchronous communication** (future scope): To enable scalability, consider integrating message queues like RabbitMQ.
+    *   **Asynchronous communication** (future scope): To enable scalability, we consider integrating message queues like RabbitMQ.
 
 
 4\. Microservices and Responsibilities
@@ -87,7 +87,9 @@ MediConnect follows a **microservices architecture** for decoupling the applicat
 
 ### 1\. **UserService**
 
-*   Manage user registration, authentication, and authorization.
+*   Manage user registration and login.
+
+*   Manage patient registration, login and business logic.
 
 *   Use JWT for secure user authentication.
 
@@ -101,8 +103,6 @@ MediConnect follows a **microservices architecture** for decoupling the applicat
 ### 2\. **AppointmentService**
 
 *   Enable patients to book, retrieve, and manage appointments with doctors.
-
-*   Ensure validation for conflicting appointment schedules.
 
 *   Key Endpoints:
 
@@ -134,8 +134,6 @@ MediConnect follows a **microservices architecture** for decoupling the applicat
 
 *   Store and manage feedback in the database.
 
-*   Generate aggregate reports (e.g., average rating per doctor).
-
 *   Key Endpoints:
 
     *   POST /api/feedback/addFeedback
@@ -147,7 +145,7 @@ MediConnect follows a **microservices architecture** for decoupling the applicat
 
 Each microservice is designed to manage its own database schema, following the **database-per-service** pattern. This approach ensures better scalability, loose coupling, and independent maintainability of microservices.
 
-Below is a high-level description of the database tables for each microservice:
+Below is a description of the database tables for each microservice:
 
 ---
 
@@ -294,7 +292,7 @@ Handles ratings and reviews provided by patients for their appointments with doc
 7\. API Documentation
 ---------------------
 
-For detailed API specifications, see [API Specification](https://chat.ixtlan-team.si/c/docs/api-spec.md).
+For detailed API specifications, see [API Specification](https://github.com/medi-connect/medi-connect/blob/dev/docs/APISpecification.md).
 
 8\. Development and Contribution Guidelines
 -------------------------------------------
@@ -302,8 +300,6 @@ For detailed API specifications, see [API Specification](https://chat.ixtlan-tea
 ### Code Standards
 
 *   Use consistent code formatting across all microservices.
-
-*   Follow the SOLID principles to maintain clean architecture.
 
 *   Enforce API versioning (e.g., /api/v1/...).
 
