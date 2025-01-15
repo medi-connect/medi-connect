@@ -3,15 +3,15 @@ kind: Ingress
 metadata:
   name: microservices-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2  # Rewrite path to remove /user-service prefix
-    nginx.ingress.kubernetes.io/use-regex: "true"   # Enable regex to allow advanced paths
+    nginx.ingress.kubernetes.io/rewrite-target: /$2  # Apply the rewrite for all services
+    nginx.ingress.kubernetes.io/use-regex: "true"   # Enable regex for path matching
 spec:
   ingressClassName: nginx
   rules:
     - http:
         paths:
-          - path: /user-service(/|$)(.*)  # Match requests starting with /user-service and capture subpaths
-            pathType: ImplementationSpecific  # Required for regex
+          - path: /user-service(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: user-service
@@ -45,4 +45,3 @@ spec:
                 name: mc-frontend-service
                 port:
                   number: 5555
-              

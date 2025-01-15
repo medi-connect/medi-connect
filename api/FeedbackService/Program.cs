@@ -4,6 +4,8 @@ using FeedbackService.HealthChecks;
 using FeedbackService.Utils;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 Env.Load();
@@ -11,7 +13,7 @@ Env.Load();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", builder =>
-        builder.WithOrigins("http://localhost:5555") // Replace with your frontend URL(s)
+        builder.WithOrigins("http://72.144.116.77/mediconnect") // Replace with your frontend URL(s)
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
@@ -19,13 +21,13 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 builder.Services.AddControllers();
 
-builder.Services.AddCors(options =>
+/*builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
         builder.AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
-});
+});*/
 builder.Services.AddHealthChecks()
     .AddCheck<DbHealthCheck>("db_health_check", tags: ["db_health_check"]);
 builder.Services.AddHealthChecks()
@@ -67,9 +69,67 @@ app.UseHealthChecks("/health/liveness", new HealthCheckOptions()
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseCors("AllowAll");
+app.UseCors("FrontendPolicy");
+
+var counter = Metrics.CreateCounter("requests_total", "Total number of requests");
+
+app.Use(async (context, next) =>
+{
+    // Exclude Prometheus metrics endpoint from incrementing the counter
+    if (context.Request.Path != "/metrics")
+    {
+        counter.Inc();
+    }
+    await next();
+});
+
+var httpDuration = Metrics.CreateHistogram("http_duration_seconds", "Histogram of HTTP request durations in seconds", new HistogramConfiguration
+{
+    LabelNames = new[] { "method", "endpoint" },
+    Buckets = Histogram.LinearBuckets(0.1, 0.1, 10)  // Buckets of 0.1s, increasing by 0.1s, up to 10s.
+});
+
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path != "/metrics")
+    {
+        var stopwatch = Stopwatch.StartNew();
+        stopwatch.Stop();
+
+        // Record response duration
+        httpDuration.Labels(context.Request.Method, context.Request.Path).Observe(stopwatch.Elapsed.TotalSeconds);   
+    }
+    await next();
+});
+
+var errorCounter = Metrics.CreateCounter("http_errors_total", "Total number of HTTP errors by status code", new CounterConfiguration
+{
+    LabelNames = new[] { "method", "endpoint", "status_code" }
+});
+
+app.Use(async (context, next) =>
+{
+    await next();
+    if (context.Request.Path != "/metrics")
+    {
+        // Track errors based on the status code
+        if (context.Response.StatusCode >= 400)
+        {
+            errorCounter.Labels(context.Request.Method, context.Request.Path, context.Response.StatusCode.ToString()).Inc();
+        }
+    }
+});
+
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseRouting();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapMetrics(); // Ensure Prometheus metrics endpoint is mapped
+});
 
 app.Run();
