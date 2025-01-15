@@ -24,33 +24,17 @@ public class AppointmentController: ControllerBase
         this.httpClient = httpClient;
     }
     
-    [HttpPost("createAppointment")]
-    public async Task<ActionResult> CreateAppointment([FromBody] AppointmentModel appointment)
-    {
-        if (await dbContext.Appointment.AnyAsync(a => a.Id == appointment.Id))
-            return BadRequest("Appointment with the given ID already exists.");
-
-        var doctorExists = await CheckIfDoctorExists(appointment.DoctorId);
-        if (!doctorExists)
-            return NotFound("Doctor not found.");
-        
-        var patientExists = await CheckIfPatientExists(appointment.PatientId);
-        if (!patientExists)
-            return NotFound("Patient not found.");
-
-        dbContext.Appointment.Add(appointment);
-        await dbContext.SaveChangesAsync();
-        await NotifyFunctionApp(new EmailAppointmentModel
-        {
-            Id = appointment.Id,
-            StartTime = appointment.StartTime,
-            Title = appointment.Title,
-            Description = appointment.Description
-        });
-        
-        return Ok("Appointment added successfully.");
-    }
-
+    /* =============================
+    * GET METHODS
+    =============================*/ 
+    /// <summary>
+    /// Retrieves a specific appointment by their ID.
+    /// </summary>
+    /// <param name="id">The ID of the appointment to retrieve.</param>
+    /// <returns>The appointment with the specified ID.</returns>
+    /// <response code="200">Returns the appointment with the specified ID</response>
+    /// <response code="400">If the appointment is not found</response>
+    /// <response code="500">If internal error occured</response>
     [HttpGet("getAppointment/{id}")]
     public async Task<ActionResult<AppointmentModel>> GetAppointment(int id)
     {
@@ -58,7 +42,7 @@ public class AppointmentController: ControllerBase
         {
 			var appointment = await dbContext.Appointment.FindAsync(id);
         	if (appointment == null)
-            	return NotFound("Appointment not found.");
+            	return BadRequest("Appointment not found.");
 
         	return Ok(appointment);
         }
@@ -68,62 +52,177 @@ public class AppointmentController: ControllerBase
         }
     }
 
+    /// <summary>
+    /// Retreives all appointments for a specific patient.
+    /// </summary>
+    /// <param name="patientId">The ID of the patient.</param>
+    /// <returns>List of appointments for specified patient.</returns>
+    /// <response code="200">Returns list of appointments for specified patient.</response>
+    /// <response code="400">If the appointments for specific patient are not found</response>
+    /// <response code="500">If internal error occured</response>
     [HttpGet("getAppointmentsForPatient/{patientId}")]
     public async Task<ActionResult<List<AppointmentModel>>> GetAppointmentsForPatient(int patientId)
     {
-        var appointments = await dbContext.Appointment
-            .Where(a => a.PatientId == patientId)
-            .ToListAsync();
+        try
+        {
+            var appointments = await dbContext.Appointment
+                .Where(a => a.PatientId == patientId)
+                .ToListAsync();
 
-        if (!appointments.Any())
-            return NotFound("No appointments found for the specified patient.");
+            if (!appointments.Any())
+                return BadRequest("No appointments found for the specified patient.");
 
-        return Ok(appointments);
+            return Ok(appointments);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
+    /// <summary>
+    /// Retreives all appointments for a specific doctor.
+    /// </summary>
+    /// <param name="doctorId">The ID of the doctor.</param>
+    /// <returns>List of appointments for specified doctor.</returns>
+    /// <response code="200">Returns list of appointments for specified doctor.</response>
+    /// <response code="400">If the appointments for specific doctor are not found</response>
+    /// <response code="500">If internal error occured</response>
     [HttpGet("getAppointmentsForDoctor/{doctorId}")]
     public async Task<ActionResult<List<AppointmentModel>>> GetAppointmentsForDoctor(int doctorId)
     {
-        var appointments = await dbContext.Appointment
-            .Where(a => a.DoctorId == doctorId)
-            .ToListAsync();
+        try
+        {
+            var appointments = await dbContext.Appointment
+                .Where(a => a.DoctorId == doctorId)
+                .ToListAsync();
 
-        if (!appointments.Any())
-            return NotFound("No appointments found for the specified doctor.");
+            if (!appointments.Any())
+                return BadRequest("No appointments found for the specified doctor.");
 
-        return Ok(appointments);
+            return Ok(appointments);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
     
+    /// <summary>
+    /// Retrieves a list all appointments in status DONE.
+    /// </summary>
+    /// <returns>A list of appointments.</returns>
+    /// <response code="200">Returns the list of done appointments</response>
+    /// <response code="400">If no appointments are found</response>
+    /// <response code="500">If internal error occured</response>
     [HttpGet("getDoneAppointments")]
     public async Task<ActionResult<List<AppointmentModel>>> FetDoneAppointments()
     {
-        var appointments = await dbContext.Appointment
-            .Where(a => a.Status == AppointmentStatus.DONE)
-            .ToListAsync();
+        try
+        {
+            var appointments = await dbContext.Appointment
+                .Where(a => a.Status == AppointmentStatus.DONE)
+                .ToListAsync();
 
-        if (!appointments.Any())
-            return NotFound("Appointments in status DONE do not exist.");
+            if (!appointments.Any())
+                return BadRequest("Appointments in status DONE do not exist.");
 
-        return Ok(appointments);
+            return Ok(appointments);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
     
-    [HttpPut("modifyStatus/{id}")]
-    public async Task<ActionResult> ModifyStatus(int id, [FromBody] StatusDTO updateDto)
+    /* =============================
+    * POST METHODS
+    =============================*/ 
+    /// <summary>
+    /// Creates a new appointment.
+    /// </summary>
+    /// <param name="appointment">The appointment object to be created.</param>
+    /// <returns>The created user.</returns>
+    /// <response code="200">Returns confirmation</response>
+    /// <response code="400">If the request body is invalid</response>
+    /// <response code="500">If internal error occured</response>
+    [HttpPost("createAppointment")]
+    public async Task<ActionResult> CreateAppointment([FromBody] AppointmentModel appointment)
     {
-        if (updateDto == null || !Enum.IsDefined(typeof(AppointmentStatus), updateDto.Status))
-            return BadRequest("Invalid or missing status.");
+        try
+        {
+            if (await dbContext.Appointment.AnyAsync(a => a.Id == appointment.Id))
+                return BadRequest("Appointment with the given ID already exists.");
 
-        var affectedRows = await dbContext.Database.ExecuteSqlRawAsync(
-            "UPDATE dbo.Appointment SET status = {0} WHERE appointment_id = {1}",
-            updateDto.Status,
-            id);
+            var doctorExists = await CheckIfDoctorExists(appointment.DoctorId);
+            if (!doctorExists)
+                return BadRequest("Doctor not found.");
 
-        if (affectedRows == 0)
-            return NotFound("Appointment not found.");
+            var patientExists = await CheckIfPatientExists(appointment.PatientId);
+            if (!patientExists)
+                return BadRequest("Patient not found.");
 
-        return Ok($"Appointment status updated to '{updateDto.Status}'.");
+            dbContext.Appointment.Add(appointment);
+            await dbContext.SaveChangesAsync();
+            await NotifyByEmail(new EmailAppointmentModel
+            {
+                Id = appointment.Id,
+                StartTime = appointment.StartTime,
+                Title = appointment.Title,
+                Description = appointment.Description
+            });
+
+            return Ok("Appointment added successfully.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+    
+    /* =============================
+    * PUT METHODS
+    =============================*/ 
+    /// <summary>
+    /// Updates status for an existing appointment.
+    /// </summary>
+    /// <param name="id">The ID of the appointment to update.</param>
+    /// <param name="statusDto">The new status.</param>
+    /// <response code="200">Confirmation</response>
+    /// <response code="400">If the request body is invalid</response>
+    /// <response code="500">If internal error occured</response>
+    [HttpPut("modifyStatus/{id}")]
+    public async Task<ActionResult> ModifyStatus(int id, [FromBody] StatusDTO statusDto)
+    {
+        try
+        {
+            if (statusDto == null || !Enum.IsDefined(typeof(AppointmentStatus), statusDto.Status))
+                return BadRequest("Invalid or missing status.");
+
+            var affectedRows = await dbContext.Database.ExecuteSqlRawAsync(
+                "UPDATE dbo.Appointment SET status = {0} WHERE appointment_id = {1}",
+                statusDto.Status,
+                id);
+
+            if (affectedRows == 0)
+                return BadRequest("Appointment not found.");
+
+            return Ok($"Appointment status updated to '{statusDto.Status}'.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
+    /// <summary>
+    /// Updates description for an existing appointment.
+    /// </summary>
+    /// <param name="id">The ID of the appointment to update.</param>
+    /// <param name="descriptionDto">The new description.</param>
+    /// <response code="200">Confirmation</response>
+    /// <response code="400">If the request body is invalid</response>
+    /// <response code="500">If internal error occured</response>
     [HttpPut("modifyDescription/{id}")]
     public async Task<ActionResult> ModifyDescription(int id, [FromBody] DescriptionDTO? descriptionDto)
     {
@@ -191,8 +290,7 @@ public class AppointmentController: ControllerBase
         }
     }
     
-    [HttpPost("sendEmail")]
-    public async Task<bool> NotifyFunctionApp([FromBody] EmailAppointmentModel appointment)
+    private async Task<bool> NotifyByEmail([FromBody] EmailAppointmentModel appointment)
     {
         var httpClient = new HttpClient();
         var key = Environment.GetEnvironmentVariable("APPOINTMENT_FUNCTION_KEY");

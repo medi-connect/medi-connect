@@ -4,12 +4,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using UserService.Controllers;
 using UserService.HealthChecks;
 using UserService.Utils;
 using Prometheus;
-using System;
 using System.Diagnostics;
+using System.Reflection;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -69,6 +68,13 @@ builder.Services.AddAuthentication(config =>
     };
 });
 
+//Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+});
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseHealthChecks("/health");
@@ -80,6 +86,10 @@ app.UseHealthChecks("/health/liveness", new HealthCheckOptions()
 {
     Predicate = (check) => check.Tags.Contains("liveness_health_check"),
 });
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI();
+
 // app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();

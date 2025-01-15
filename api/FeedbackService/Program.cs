@@ -1,3 +1,4 @@
+using System.Reflection;
 using DotNetEnv;
 using FeedbackService.HealthChecks;
 using FeedbackService.Utils;
@@ -36,6 +37,13 @@ var dbConnString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(dbConnString));
 
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+});
+
 builder.Services.AddHttpClient();
 builder.Configuration.AddEnvironmentVariables();
 
@@ -54,6 +62,11 @@ app.UseHealthChecks("/health/liveness", new HealthCheckOptions()
 {
     Predicate = (check) => check.Tags.Contains("liveness_health_check"),
 });
+
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.UseCors("AllowAll");
 app.UseAuthorization();
 

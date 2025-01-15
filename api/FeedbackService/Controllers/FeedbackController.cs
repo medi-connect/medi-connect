@@ -22,6 +22,14 @@ public class FeedbackController : ControllerBase
     * GET METHODS
     =============================*/ 
     
+    /// <summary>
+    /// Retrieves a specific feedback by their ID.
+    /// </summary>
+    /// <param name="id">The ID of the feedback to retrieve.</param>
+    /// <returns>The feedback with the specified ID.</returns>
+    /// <response code="200">Returns the feedback with the specified ID</response>
+    /// <response code="400">If the feedback is not found or required parameter is null</response>
+    /// <response code="500">If error occurs</response>
     [HttpGet("getFeedback/{id}")]
     public async Task<ActionResult<FeedbackModel>> GetFeedback([FromRoute] int? id)
     {
@@ -46,17 +54,18 @@ public class FeedbackController : ControllerBase
 
             if (feedback is null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             return Ok(feedback);
         }
         catch (Exception e)
         {
-            return BadRequest(e);
+            return StatusCode(500, e.Message);
         }
     }
     
+    [NonAction]
     [HttpGet("getFeedbacksForDoneAppointments")]
     public async Task<ActionResult<List<FeedbackModel>>> GetFeedbackForDoneAppointments()
     {
@@ -86,6 +95,14 @@ public class FeedbackController : ControllerBase
     /* =============================
     * POST METHODS
     =============================*/ 
+    /// <summary>
+    /// Creates a new feedback.
+    /// </summary>
+    /// <param name="feedback">The feedback object to be created.</param>
+    /// <returns>Confirmation.</returns>
+    /// <response code="200">Returns confirmation that feedback was created</response>
+    /// <response code="400">If the request body is invalid</response>
+    /// <response code="500">If error occured</response>
     [HttpPost("addFeedback")]
     public async Task<ActionResult<FeedbackModel>> AddFeedback([FromBody] FeedbackModel? feedback)
     {
@@ -114,7 +131,7 @@ public class FeedbackController : ControllerBase
         }
         catch (Exception e)
         {
-            return BadRequest(e);
+            return StatusCode(500, e.Message);
         }
     }
 }
